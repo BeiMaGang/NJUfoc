@@ -2,7 +2,8 @@
 
 extern FILE* yyin;
 
-int main(int argc, char* argv){
+int main(int argc, char* argv){//test todo
+/**/
     if(argc < 2){
         yylex();
     }
