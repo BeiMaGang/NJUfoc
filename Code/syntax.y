@@ -1,6 +1,13 @@
+%locations
 %{
     #include <stdio.h>
     #include "lex.yy.c"
+    int yycolumn = 1;
+    #define YY_USER_ACTION \
+    yylloc.first_line = yylloc.last_line = yylineno; \
+    yylloc.first_column = yycolumn; \
+    yylloc.last_column = yycolumn + yyleng - 1; \
+    yycolumn += yyleng;
 %}
 
 %token PLUS MINUS STAR DIV
@@ -11,6 +18,7 @@
 %token AND OR
 %token DOT
 %token NOT
+%token TYPE
 %token LP RP LB RB LC RC
 %token STRUCT
 %token RETURN
@@ -22,7 +30,7 @@
 %token ID
 
 %%
-Program : ExtDefList
+Program : ExtDefList {printf("Program(%d)\n", yycolumn);}
         ;
 ExtDefList : ExtDef ExtDefList
         |
@@ -37,9 +45,6 @@ ExtDecList : VarDec
 
 Specifier : TYPE 
         | StrucuSpecifier
-        ;
-TYPE    : INT 
-        | FLOAT
         ;
 StrucuSpecifier : STRUCT OptTag LC DefList RC
         | STRUCT Tag
@@ -110,10 +115,7 @@ Args    : Exp COMMA Args
         | Exp
         ;
 %%
-int main(){
-    yyparse();
-}
 
 int yyerror(char* msg){
-    fprintf(stderr, "error: %s\n", msg);
+    fprintf(stderr, "%d line error: %s\n", yylloc.first_line, msg);
 }

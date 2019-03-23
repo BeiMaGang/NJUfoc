@@ -1,7 +1,7 @@
 %{
     #include "syntax.tab.h"
     int LINE = 1;
-
+    extern int yycolumn;
 %}
 %option yylineno
 
@@ -43,14 +43,15 @@ return {return RETURN;}
 if {return IF;}
 else {return ELSE;}
 while {return WHILE;}
+int|float {return TYPE;}
 {id} {return ID;}
 {ws}+ {}
-\n {LINE++;}
+\n {LINE++;yycolumn = 1;}
 
 "/*"[\n|.]*"*/" {printf("todo : %s\n", yytext);}
 "//".*$ {printf("todo : %s\n", yytext);}
 
-. {printf("error line %d \"%s\"\n", yylineno, yytext);}
+. {/*printf("error line %d \"%s\"\n", yylineno, yytext);*/}
 
 
 
