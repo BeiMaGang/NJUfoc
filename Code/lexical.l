@@ -1,4 +1,5 @@
 %{
+    #include "syntax.tab.h"
     int LINE = 1;
 
 %}
@@ -7,51 +8,54 @@
 digit   [0-9]
 letter  [A-Za-z]
 id      (_|{letter})(_|{letter}|{digit})*
-
+int     [+-]?{digit}+
+float   [+1]?{digit}+(\.{digit}+)?(E[+-]?{digit}+)?
+ws      [ \t]
 
 %%
-";" {/*SEMI*/}
-"," {/*COMMA*/}
-"=" {/*ASSIGNOP*/}
-">" {/*RELOP*/}
-"<" {/*RELOP*/}
-">=" {/*RELOP*/}
-"<=" {/*RELOP*/}
-"==" {/*RELOP*/}
-"!=" {/*RELOP*/}
-"+" {/*PLUS*/}
-"-" {/*MINUS*/}
-"*" {/*STAR*/}
-"/" {/*DIV*/}
-"&&" {/*AND*/}
-"||" {/*OR*/}
-"." {/*DOT*/}
-"!" {/*NOT*/}
-int|float {/*TYPE*/}
-"(" {/*LP*/}
-")" {/*RP*/}
-"[" {/*LB*/}
-"]" {/*RB*/}
-"{" {/*LC*/}
-"}" {/*RC*/}
-struct {/*STRUCT*/}
-return {/*RETURN*/}
-if {/*IF*/}
-else {/*ELSE*/}
-while {/*WHILE*/}
+{int} {return INT;}
+{float} {return FLOAT;}
+";" {return SEMI;}
+"," {return COMMA;}
+"=" {return ASSIGNOP;}
+">" {return RELOP;}
+"<" {return RELOP;}
+">=" {return RELOP;}
+"<=" {return RELOP;}
+"==" {return RELOP;}
+"!=" {return RELOP;}
+"+" {return PLUS;}
+"-" {return MINUS;}
+"*" {return STAR;}
+"/" {return DIV;}
+"&&" {return AND;}
+"||" {return OR;}
+"." {return DOT;}
+"!" {return NOT;}
+"(" {return LP;}
+")" {return RP;}
+"[" {return LB;}
+"]" {return RB;}
+"{" {return LC;}
+"}" {return RC;}
+struct {return STRUCT;}
+return {return RETURN;}
+if {return IF;}
+else {return ELSE;}
+while {return WHILE;}
+{id} {return ID;}
 {ws}+ {}
 \n {LINE++;}
 
 "/*"[\n|.]*"*/" {printf("todo : %s\n", yytext);}
 "//".*$ {printf("todo : %s\n", yytext);}
-{id} {}
-{num} {}
 
 . {printf("error line %d \"%s\"\n", yylineno, yytext);}
 
 
 
 %%
+/*
 int main(int argc, char** argv){
     if(argc < 2){
         yylex();
@@ -74,7 +78,7 @@ int main(int argc, char** argv){
     }
     return 0;
 }
-
+*/
 
 int yywrap(){
     return 1;
