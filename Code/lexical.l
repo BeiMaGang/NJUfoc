@@ -1,21 +1,21 @@
 %{
     #include "syntax.tab.h"
-    int LINE = 1;
     extern int yycolumn;
+    extern YYSTYPE yylval;
 %}
 %option yylineno
 
 digit   [0-9]
 letter  [A-Za-z]
 id      (_|{letter})(_|{letter}|{digit})*
-int     [+-]?{digit}+
-float   [+1]?{digit}+(\.{digit}+)?(E[+-]?{digit}+)?
+INT     [+-]?{digit}+
+FLOAT   [+1]?{digit}+(\.{digit}+)?(E[+-]?{digit}+)?
 ws      [ \t]
 
 %%
-{int} {return INT;}
-{float} {return FLOAT;}
-";" {return SEMI;}
+{INT} {printf("num int %d\n", yylval);return INT;}
+{FLOAT} {printf("num float %s\n", yytext); return FLOAT;}
+";" {printf("%s\n", yytext); return SEMI;}
 "," {return COMMA;}
 "=" {return ASSIGNOP;}
 ">" {return RELOP;}
@@ -32,26 +32,26 @@ ws      [ \t]
 "||" {return OR;}
 "." {return DOT;}
 "!" {return NOT;}
-"(" {return LP;}
-")" {return RP;}
-"[" {return LB;}
-"]" {return RB;}
-"{" {return LC;}
-"}" {return RC;}
+"(" {printf("%s\n", yytext);return LP;}
+")" {printf("%s\n", yytext);return RP;}
+"[" {printf("%s\n", yytext);return LB;}
+"]" {printf("%s\n", yytext);return RB;}
+"{" {printf("%s\n", yytext);return LC;}
+"}" {printf("%s\n", yytext);return RC;}
 struct {return STRUCT;}
 return {return RETURN;}
 if {return IF;}
 else {return ELSE;}
 while {return WHILE;}
-int|float {return TYPE;}
-{id} {return ID;}
+(int)|(float) {printf("type int\n");return TYPE;}
+{id} {printf("id %s\n", yytext); return ID;}
 {ws}+ {}
-\n {LINE++;yycolumn = 1;}
+\n {yycolumn = 1;}
 
-"/*"[\n|.]*"*/" {printf("todo : %s\n", yytext);}
+"/*"(.|\n)*"*/" {printf("todo : %s\n", yytext);}
 "//".*$ {printf("todo : %s\n", yytext);}
 
-. {/*printf("error line %d \"%s\"\n", yylineno, yytext);*/}
+. {printf("lexical error line %d \"%s\"\n", yylineno, yytext);}
 
 
 

@@ -9,6 +9,11 @@
     yylloc.last_column = yycolumn + yyleng - 1; \
     yycolumn += yyleng;
 %}
+/*test*/
+%union{
+    int a;
+    float b;
+}
 
 %token PLUS MINUS STAR DIV
 %token SEMI
@@ -29,8 +34,22 @@
 %token FLOAT
 %token ID
 
+/*associativity and priorities*/
+%right ASSIGNOP
+%left  OR
+%left  AND
+%left  RELOP
+%left  PLUS MINUS
+%left  STAR DIV
+/*qu fu hao mei you xie*/
+%right NOT
+%left LP RP LB RB DOT
+
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
+
 %%
-Program : ExtDefList {printf("Program(%d)\n", yycolumn);}
+Program : ExtDefList
         ;
 ExtDefList : ExtDef ExtDefList
         |
@@ -75,7 +94,7 @@ StmtList: Stmt StmtList
 Stmt    : Exp SEMI
         | CompSt
         | RETURN Exp SEMI
-        | IF LP Exp RP Stmt
+        | IF LP Exp RP Stmt %prec LOWER_THAN_ELSE
         | IF LP Exp RP Stmt ELSE Stmt
         | WHILE LP Exp RP Stmt
         ;
