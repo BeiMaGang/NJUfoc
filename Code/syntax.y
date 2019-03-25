@@ -11,8 +11,7 @@
 %}
 /*test*/
 %union{
-    int a;
-    float b;
+    struct TreeNode* node;
 }
 
 %token PLUS MINUS STAR DIV
