@@ -1,5 +1,6 @@
 extern int yycolumn;
 extern char* yytext;
+extern int yylineno;
 struct TreeNode{
     int line;
     char* name;
