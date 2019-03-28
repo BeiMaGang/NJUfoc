@@ -52,7 +52,7 @@ while {yylval.node = createNode("WHILE",0); return WHILE;}
 "/*"(.|\n)*"*/" {printf("todo : %s\n", yytext);}
 "//".*$ {printf("todo : %s\n", yytext);}
 
-. {printf("lexical error line %d \"%s\"\n", yylineno, yytext);}
+. {printf("Error type A at Line %d: \"%s\"\n", yylineno, yytext);}
 
 
 

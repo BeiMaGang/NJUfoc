@@ -1,5 +1,7 @@
-int main()
+int inc()
 {
-	int i = 1;
-	int j = 2;
+	int i;
+	i[1,10] = 10;
+	i = i + 1;
+	i[1,10] = 10;
 }
