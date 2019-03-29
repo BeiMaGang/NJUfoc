@@ -17,7 +17,6 @@ int main(int argc, char** argv){
             yyin = f;
             yyparse();
             fclose(f);
-            printf("%s total lines : %d \n\n\n", argv[i], yylineno);
             yylineno = 1;
         }
     }

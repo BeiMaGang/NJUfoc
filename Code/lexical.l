@@ -1,8 +1,14 @@
 %{
     #include "syntax.tab.h"
     #include "syntaxTree.h"
-    extern int yycolumn;
     extern YYSTYPE yylval;
+
+    int yycolumn = 1;
+    #define YY_USER_ACTION \
+    yylloc.first_line = yylloc.last_line = yylineno; \
+    yylloc.first_column = yycolumn; \
+    yylloc.last_column = yycolumn + yyleng - 1; \
+    yycolumn += yyleng;
 %}
 %option yylineno
 
@@ -49,39 +55,14 @@ while {yylval.node = createNode("WHILE",0); return WHILE;}
 {ws}+ {}
 \n {yycolumn = 1;}
 
-"/*"(.|\n)*"*/" {printf("todo : %s\n", yytext);}
+\/\*(([^\*]*(\*[^\/])?)*)\*\/ {printf("todo : %s\n", yytext);}
 "//".*$ {printf("todo : %s\n", yytext);}
 
-. {printf("Error type A at Line %d: \"%s\"\n", yylineno, yytext);}
+. {printf("Error type A at Line %d: Mysterious character\"%s\"\n", yylineno, yytext);}
 
 
 
 %%
-/*
-int main(int argc, char** argv){
-    if(argc < 2){
-        yylex();
-    }
-    else{
-        for(int i = 1; i < argc; i++){
-            FILE *f = fopen(argv[i],"r");
-            if(!f){
-                perror(argv[i]);
-                return 1;
-            }
-            YY_BUFFER_STATE bp = yy_create_buffer(f, YY_BUF_SIZE);
-            yy_switch_to_buffer(bp);
-            yylex();
-            yy_delete_buffer(bp);
-            fclose(f);
-            printf("%s total lines : %d \n\n\n", argv[i], yylineno);
-            yylineno = 1;
-        }
-    }
-    return 0;
-}
-*/
-
 int yywrap(){
     return 1;
 }
