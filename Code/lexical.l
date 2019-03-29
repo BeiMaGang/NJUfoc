@@ -55,8 +55,8 @@ while {yylval.node = createNode("WHILE",0); return WHILE;}
 {ws}+ {}
 \n {yycolumn = 1;}
 
-\/\*(([^\*]*(\*[^\/])?)*)\*\/ {printf("todo : %s\n", yytext);}
-"//".*$ {printf("todo : %s\n", yytext);}
+"/*"(([^\*]*(\*[^\/])?)*)"*/"
+"//".*$ 
 
 . {printf("Error type A at Line %d: Mysterious character\"%s\"\n", yylineno, yytext);}
 

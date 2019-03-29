@@ -48,7 +48,7 @@
 %nonassoc ELSE
 
 %%
-Program : ExtDefList {$$ = createNode("Program",1,$1); if(!wrong) prePrint($$,1);}
+Program : ExtDefList {$$ = createNode("Program",1,$1); if(!wrong) prePrint($$,0);}
         ;
 ExtDefList : ExtDef ExtDefList {$$ = createNode("ExtDecList",2,$1,$2);}
         |{ $$ = createNode("ExtDefList",0);setFlag($$);}
