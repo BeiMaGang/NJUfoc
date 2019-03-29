@@ -15,8 +15,8 @@
 digit   [0-9]
 letter  [A-Za-z]
 id      (_|{letter})(_|{letter}|{digit})*
-INT     [+-]?{digit}+
-FLOAT   [+-]?{digit}+(\.{digit}+)?(E[+-]?{digit}+)?
+INT     (0|([1-9]{digit}*))
+FLOAT   {INT}\.{digit}+
 ws      [ \t]
 
 %%
