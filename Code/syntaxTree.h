@@ -1,3 +1,5 @@
+#ifndef TREE_H
+#define TREE_H
 extern int yycolumn;
 extern char* yytext;
 extern int yylineno;
@@ -17,3 +19,6 @@ struct TreeNode{
 struct TreeNode* createNode(char* name, int num, ...);
 void prePrint(struct TreeNode* parent, int level);
 void setFlag(struct TreeNode* node);
+struct TreeNode* root;
+
+#endif

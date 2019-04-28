@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "symboltable.h": "c",
+        "syntaxtree.h": "c",
+        "semantic.h": "c"
+    }
+}

@@ -5,6 +5,7 @@
     #define YYERROR_VERBOSE
     int wrong = 0;
     extern FILE *yyin;
+    extern struct TreeNode* root;
 %}
 %locations
 /*test*/
@@ -48,9 +49,9 @@
 %nonassoc ELSE
 
 %%
-Program : ExtDefList {$$ = createNode("Program",1,$1); if(!wrong) prePrint($$,0);}
+Program : ExtDefList {$$ = createNode("Program",1,$1); root = $$; /*if(!wrong) prePrint($$,0);*/}
         ;
-ExtDefList : ExtDef ExtDefList {$$ = createNode("ExtDecList",2,$1,$2);}
+ExtDefList : ExtDef ExtDefList {$$ = createNode("ExtDefList",2,$1,$2);}
         |{ $$ = createNode("ExtDefList",0);setFlag($$);}
         ;
 ExtDef  : Specifier ExtDecList SEMI {$$ = createNode("ExtDef",3,$1,$2,$3);}
@@ -111,6 +112,7 @@ CompSt  : LC DefList StmtList RC {$$ = createNode("CompSt",4,$1,$2,$3,$4);}
         | LC DefList StmtList error {errorinf(@3.last_line, "expecting }");}
         | error RC {errorinf(@2.first_line, "before } expecting ; or ,");}
         ;
+        
 StmtList: Stmt StmtList {$$ = createNode("StmtList",2,$1,$2);}
         |{ $$ = createNode("StmtList",0);setFlag($$);}
 
@@ -183,9 +185,9 @@ Args    : Exp COMMA Args {$$ = createNode("Args",3,$1,$2,$3);}
 
 void yyerror(char* msg){
     wrong = 1;
-    //printf("at Line %d: \"%s\"  %s\n", yylineno, msg, yytext);
+    printf("at Line %d: \"%s\"  %s\n", yylineno, msg, yytext);
 }
 
 void errorinf(int line, char* content){
-    printf("Error type B at Line %d: \"%s\"\n", line, content);
+//     printf("Error type B at Line %d: \"%s\"\n", line, content);
 }

@@ -1,6 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include <string.h>
+#include<string.h>
 #include<stdarg.h>//变长参数函数所需的头文件
 #include"syntaxTree.h"
 
