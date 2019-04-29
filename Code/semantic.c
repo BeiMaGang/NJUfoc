@@ -171,8 +171,8 @@ void Stmt(struct TreeNode* node, Type type){
         //Stmt -> IF LP Exp RP Stmt
         Type ifType = Exp(node);
         if(ifType->kind != BASIC || ifType->u.basic != TYPE_INT){
-            //error
-            error(18, node->line, "if chu cuo");
+            //error 7
+            error(7, node->line, "if judge condition only int");
         }
 
         node = node->broTree->broTree;
@@ -191,8 +191,8 @@ void Stmt(struct TreeNode* node, Type type){
         
         Type ifType = Exp(node);
         if(ifType->kind != BASIC || ifType->u.basic != TYPE_INT){
-            //error
-            error(18, node->line, "while chu cuo");
+            //error 7
+            error(7, node->line, "while judge condition only int");
         }
         Stmt(node->broTree->broTree, type);
     }
@@ -336,14 +336,13 @@ FieldList DefList(struct TreeNode* node){
 FieldList Def(struct TreeNode* node){
     debug(node, "Def");
     
-
     //Def     : Specifier DecList SEMI
     FieldList field;
     node = node->subTree;
     Type type = Specifier(node);
 
     if(type == NULL){
-        return NULL;
+        type = DEFAULT_TYPE;
     }
     
     field = DecList(node->broTree, type);
@@ -575,7 +574,7 @@ Type Exp(struct TreeNode* node){
                 return DEFAULT_TYPE;
             }
             retType = (Type)malloc(sizeof(struct Type_));
-            memcpy(retType, p1, sizeof(struct Type_));
+            memcpy(retType, p1->u.array.elem, sizeof(struct Type_));
             retType->assign = LEFT;
             return retType;
         }else if(!strcmp(node->name, "DOT")){
@@ -634,7 +633,7 @@ Type Exp(struct TreeNode* node){
         return Exp(node->broTree);
     }
 
-    printf("Exp error \n");
+    // printf("Exp error \n");
 }
 
 //finished
