@@ -1,5 +1,5 @@
 *.yy.c
 *.out
 .o
-.vscode/
+.vscode/*
 parser
