@@ -32,6 +32,7 @@ FieldList VarDec(struct TreeNode* node,Type type);
 
 
 Type Exp(Operand place, struct TreeNode* node);
+void Cond(Operand operand1, Operand operand2, struct TreeNode* node);
 
 int Args(struct TreeNode* node, FieldList param);
 #endif

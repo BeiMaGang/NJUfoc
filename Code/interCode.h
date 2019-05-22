@@ -16,12 +16,12 @@ struct Operand_ {
 typedef struct InterCode_* InterCode; 
 struct InterCode_ {
     enum {CODE_BEGIN, ASSIGN, ADD, SUB, MUL, DIV, 
-        GOTO, IF_GOTO, FUNCTION_C, RETURN_C, DEC, PARAM, READ, WRITE, CALL} kind;
+        GOTO, IF_GOTO, FUNCTION_C, RETURN_C, DEC, PARAM, READ, WRITE, CALL, LABEL} kind;
     union{
-        struct{ Operand right, left;}assign;
-        
+        struct{ Operand right, left;}assign; 
         struct{ Operand op;} sinop;
         struct{ Operand result, op1, op2;} binop;
+        struct{ Operand t1, t2, label; char* op;} if_goto;
     }u;
     InterCode pre;
     InterCode next;
