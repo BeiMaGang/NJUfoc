@@ -28,4 +28,6 @@ int structInsertTable(Type type);
 
 int varInsertTable(char* name, Type type);
 
+void initSymbolTable();
+
 #endif

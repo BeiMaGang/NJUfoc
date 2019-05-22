@@ -6,7 +6,9 @@
 #include "symbolTable.h"
 #include "syntaxTree.h"
 
-// #define DEBUG    
+// #define DEBUG    rr
+
+//#define Exp(defaultPlace, A) Exp(defaultPlace, A, "NULL")
 
 #define GENERAL 0
 #define STRUCTURE_STATUS 1
@@ -86,7 +88,7 @@ void ExtDef(struct TreeNode* node){
     }
 }
 
-//finished
+//finished lab3 finished
 void FunDec(struct TreeNode* node, Type type){
     debug(node, "FunDec");
 
@@ -102,6 +104,13 @@ void FunDec(struct TreeNode* node, Type type){
     }
     function->name = fun_name;
 
+    //intercode
+    InterCode funcCode = createInterCode();
+    funcCode->kind = FUNCTION_C;
+    Operand operand = createOperand();
+    operand->kind = CONSTANT;
+    operand->u.value = fun_name;
+    funcCode->u.sinop.op = operand;
 
     if(!strcmp(node->broTree->broTree->name, "VarList")){
         //FunDec -> ID LP VarList RP
@@ -154,11 +163,11 @@ void Stmt(struct TreeNode* node, Type type){
     node = node->subTree;
     if(!strcmp(node->name, "Exp")){
         //Stmt-> Exp
-        Exp(node);
+        Exp(defaultPlace, node);
     }else if(!strcmp(node->name, "CompSt")){
         CompSt(node, type);
     }else if(!strcmp(node->name, "RETURN")){
-        Type returnType = Exp(node->broTree);
+        Type returnType = Exp(defaultPlace, node->broTree);
         if(!typeEqual(type, returnType)){
             //error 8
             error(8, node->line, "Type mismatched for return");
@@ -169,7 +178,7 @@ void Stmt(struct TreeNode* node, Type type){
         assert(!strcmp(node->name, "Exp"));
 
         //Stmt -> IF LP Exp RP Stmt
-        Type ifType = Exp(node);
+        Type ifType = Exp(defaultPlace, node);
         if(ifType->kind != BASIC || ifType->u.basic != TYPE_INT){
             //error 7
             error(7, node->line, "if judge condition only int");
@@ -189,7 +198,7 @@ void Stmt(struct TreeNode* node, Type type){
         //node is Exp;
         assert(!strcmp(node->name, "Exp"));
         
-        Type ifType = Exp(node);
+        Type ifType = Exp(defaultPlace, node);
         if(ifType->kind != BASIC || ifType->u.basic != TYPE_INT){
             //error 7
             error(7, node->line, "while judge condition only int");
@@ -396,7 +405,7 @@ FieldList Dec(struct TreeNode* node,Type type){
             error(15, node->broTree->line, "initial in Struct Field");
         }
         FieldList field = VarDec(node, type);
-        Type dstType = Exp(node->broTree->broTree);
+        Type dstType = Exp(defaultPlace, node->broTree->broTree);
         if(!typeEqual(field->type, dstType)){
             //error 5
             error(5, node->broTree->line, "Type mismatched for assignment");
@@ -405,7 +414,7 @@ FieldList Dec(struct TreeNode* node,Type type){
     }
 }
 
-//finished
+//finished lab3 ing
 FieldList VarDec(struct TreeNode* node,Type type){
     debug(node, "VarDec");
     node = node->subTree;
@@ -440,8 +449,8 @@ FieldList VarDec(struct TreeNode* node,Type type){
     return field;
 }
 
-//finished
-Type Exp(struct TreeNode* node){
+//finished  lab3 ing
+Type Exp(Operand place, struct TreeNode* node){
     debug(node, "Exp");
     node = node->subTree;
 
@@ -452,6 +461,16 @@ Type Exp(struct TreeNode* node){
         retType->kind = BASIC;
         retType->u.basic = TYPE_FLOAT;
         retType->assign = RIGHT;
+
+        //intercode
+        // InterCode floatCode = createInterCode();
+        // floatCode->kind = ASSIGN;
+        // floatCode->u.assign.left = place;
+        // Operand right = createOperand();
+        // right->kind = CONSTANT;
+        // right->u.floatVar = node->floatType;
+        // floatCode->u.assign.right = right;
+
         return retType;
     }else if(!strcmp(node->name, "INT")){
         //INT
@@ -511,11 +530,11 @@ Type Exp(struct TreeNode* node){
     }else if(!strcmp(node->name, "Exp")){
         //Exp -> Exp ...
         struct TreeNode* fstChild = node;
-        Type p1 = Exp(node);
+        Type p1 = Exp(defaultPlace, node);
         node = node->broTree;
         if(!strcmp(node->name, "ASSIGNOP")){
             //Exp -> Exp ASSIGNOP Exp
-            Type p2 = Exp(node->broTree);
+            Type p2 = Exp(defaultPlace, node->broTree);
             if(p1->assign != LEFT){
                 //error 6
                 error(6, node->line, "The left-hand side of an assignment must be a variable");
@@ -531,7 +550,7 @@ Type Exp(struct TreeNode* node){
                 !strcmp(node->name, "OR")||
                 !strcmp(node->name, "RELOP")){
             //Exp -> Exp AND|OR|RELOP Exp
-            Type p2 = Exp(node->broTree);
+            Type p2 = Exp(defaultPlace, node->broTree);
             if(!(p1->kind == BASIC && p1->u.basic == TYPE_INT && 
                 p2->kind == BASIC && p2->u.basic == TYPE_INT)){
                 //error 7
@@ -548,7 +567,7 @@ Type Exp(struct TreeNode* node){
                 !strcmp(node->name, "DIV")){
             // Exp -> Exp +-*/ Exp
             
-            Type p2 = Exp(node->broTree);
+            Type p2 = Exp(defaultPlace, node->broTree);
             if(typeEqual(p1, p2) && p1->kind == BASIC){
                 retType = (Type)malloc(sizeof(struct Type_));
                 memcpy(retType, p1, sizeof(struct Type_));
@@ -561,7 +580,7 @@ Type Exp(struct TreeNode* node){
             }
         }else if(!strcmp(node->name, "LB")){
             // Exp -> Exp LB Exp RB
-            Type p2 = Exp(node->broTree);
+            Type p2 = Exp(defaultPlace, node->broTree);
             if(!(p2->kind == BASIC && p2->u.basic == TYPE_INT)){
                 // error 12
                 error(12, node->line, "Array access should be a integer");
@@ -606,7 +625,7 @@ Type Exp(struct TreeNode* node){
         }
     }else if(!strcmp(node->name, "NOT")){
         //Exp -> NOT Exp
-        Type p = Exp(node->broTree);
+        Type p = Exp(defaultPlace, node->broTree);
         if(!(p->kind == BASIC && p->u.basic == TYPE_INT)){
             //error 7
             error(7, node->line, "Type mismatched for operands, Only int");
@@ -618,7 +637,7 @@ Type Exp(struct TreeNode* node){
         return retType;
     }else if(!strcmp(node->name, "MINUS")){
         //Exp -> MinUS Exp
-        Type p = Exp(node->broTree);
+        Type p = Exp(defaultPlace, node->broTree);
         if(p->kind == BASIC){
             retType = (Type)malloc(sizeof(struct Type_));
             memcpy(retType, p, sizeof(struct Type_));
@@ -630,7 +649,7 @@ Type Exp(struct TreeNode* node){
             return DEFAULT_TYPE;
         }
     }else if(!strcmp(node->name, "LP")){
-        return Exp(node->broTree);
+        return Exp(defaultPlace, node->broTree);
     }
 
     // printf("Exp error \n");
@@ -644,7 +663,7 @@ int Args(struct TreeNode* node, FieldList param){
     }
 
     node = node->subTree;
-    Type type = Exp(node);
+    Type type = Exp(defaultPlace, node);
     if(!typeEqual(param->type, type)){
         return 0;
     }

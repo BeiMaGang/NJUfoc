@@ -25,7 +25,10 @@ int main(int argc, char** argv){
     }
     if(!wrong){
         initialType();
+        initSymbolTable();
+        initCode();
         Program();
+        printCode();
     }
     return 0;
 }

@@ -6,6 +6,7 @@
 
 #include "symbolTable.h"
 #include "syntaxTree.h"
+#include "interCode.h"
 
 
 void Program();
@@ -30,7 +31,7 @@ FieldList Dec(struct TreeNode* node,Type type);
 FieldList VarDec(struct TreeNode* node,Type type);
 
 
-Type Exp(struct TreeNode* node);
+Type Exp(Operand place, struct TreeNode* node);
 
 int Args(struct TreeNode* node, FieldList param);
 #endif

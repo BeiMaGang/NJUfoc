@@ -2,6 +2,9 @@
     "files.associations": {
         "symboltable.h": "c",
         "syntaxtree.h": "c",
-        "semantic.h": "c"
+        "semantic.h": "c",
+        "limits": "cpp",
+        "type_traits": "cpp",
+        "stdlib.h": "c"
     }
 }

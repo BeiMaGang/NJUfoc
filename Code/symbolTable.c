@@ -72,3 +72,34 @@ int varInsertTable(char* name, Type type){
 #endif
     return 1;
 }
+
+void initSymbolTable(){
+    const char* write = "write";
+    Type writeType = (Type)malloc(sizeof(struct Type_));
+    writeType->kind = FUNTION;
+
+    writeType->u.funtion = (Funtion)malloc(sizeof(struct Funtion_));
+    writeType->u.funtion->name = write;
+    writeType->u.funtion->paras = (FieldList)malloc(sizeof(struct FieldList_));
+    writeType->u.funtion->paras->type = (Type)malloc(sizeof(struct Type_));
+    writeType->u.funtion->paras->type->kind = BASIC;
+    writeType->u.funtion->paras->type->u.basic = TYPE_INT;
+
+    writeType->u.funtion->retType = (Type)malloc(sizeof(struct Type_));
+    writeType->u.funtion->retType->kind = BASIC;
+    writeType->u.funtion->retType->u.basic = TYPE_INT;
+
+    varInsertTable(write, writeType);
+
+    const char* read = "read";
+    Type readType = (Type)malloc(sizeof(struct Type_));
+    readType->kind = FUNTION;
+    readType->u.funtion = (Funtion)malloc(sizeof(struct Funtion_));
+    readType->u.funtion->name = read;
+
+    readType->u.funtion->retType = (Type)malloc(sizeof(struct Type_));
+    readType->u.funtion->retType->kind = BASIC;
+    readType->u.funtion->retType->u.basic = TYPE_INT;
+
+    varInsertTable(read, readType);
+}
