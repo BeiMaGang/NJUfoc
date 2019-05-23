@@ -2,18 +2,29 @@ FUNCTION func :
 PARAM i
 PARAM j
 PARAM w
-t5 := #1 * #4
-t2 := &w + t5
-j := *t2
+t7 := #1 * #4
+t3 := w + t7
+t2 := *t3 + #50
+j := t2
+t12 := #1 * #4
+t9 := w + t12
+#0 := #10 + *t9
+FUNCTION add :
+PARAM t
+PARAM jy
+t17 := #1 * #4
+t13 := jy + t17
+#0 := *t13 + #170
 FUNCTION main :
 DEC a 800
 DEC b 40
-t15 := #2 * #80
-t12 := &a + t15
-t17 := #1 * #4
-t10 := t12 + t17
-t9 := *t10 + #50
+t27 := #2 * #80
+t24 := &a + t27
+t29 := #1 * #4
+t22 := t24 + t29
+t21 := *t22 + #50
 ARG &b
-ARG t9
+ARG t21
 ARG #10
 k := CALL func
+k := CALL read

@@ -84,6 +84,7 @@ void initSymbolTable(){
     writeType->u.funtion->paras->type = (Type)malloc(sizeof(struct Type_));
     writeType->u.funtion->paras->type->kind = BASIC;
     writeType->u.funtion->paras->type->u.basic = TYPE_INT;
+    writeType->u.funtion->paras->tail = NULL;
 
     writeType->u.funtion->retType = (Type)malloc(sizeof(struct Type_));
     writeType->u.funtion->retType->kind = BASIC;

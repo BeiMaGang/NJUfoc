@@ -6,7 +6,7 @@
 #include "symbolTable.h"
 #include "syntaxTree.h"
 
-// #define DEBUG
+#define DEBUG
 
 int T = 0;
 int V = 0;
@@ -19,6 +19,9 @@ int PARAM_DEC_ING = 0;
 
 InterCode argCodes[128];
 int sizeOfCodes = 0;
+
+char* param_name_dec_ing[128];
+int sizeOfNames = 0;
 
 extern Term SymbolTable[SIZE];
 extern struct TreeNode* root;
@@ -91,6 +94,7 @@ void ExtDef(struct TreeNode* node){
         //EXtDef -> Specifier FunDec CompSt
         FunDec(node, inhType);
         CompSt(node->broTree, inhType);
+        sizeOfNames = 0;
         return 0;
     }
 }
@@ -462,6 +466,11 @@ FieldList VarDec(struct TreeNode* node,Type type){
             param->kind = VAR;
             param->u.value = node->idType;
             paramCode->u.sinop.op = param;
+
+            if(type->kind == ARRAY){
+                param_name_dec_ing[sizeOfNames] = node->idType;
+                sizeOfNames++;
+            }
         }
 
         if(getTable(node->idType) == NULL){
@@ -541,6 +550,7 @@ Type Exp(Operand place, struct TreeNode* node){
             return retType;
         }else if(!strcmp(node->broTree->name, "LP")){
             // Exp -> ID LP Args RP | ID LP RP
+            printf("func %s\n", node->idType);
             Type func = getTable(node->idType);
             if(func == NULL){
                 // error 2
@@ -578,6 +588,7 @@ Type Exp(Operand place, struct TreeNode* node){
             //intercode 
             place->kind = CALL;
             place->u.value = func->u.funtion->name;
+            
             retType = (Type)malloc(sizeof(struct Type_));
             memcpy(retType, func->u.funtion->retType, sizeof(struct Type_));
             retType->assign = RIGHT;
@@ -833,7 +844,9 @@ int Args(struct TreeNode* node, FieldList param){
     Operand t = createOperand();
     t->kind = VAR;
     t->u.value = new_temp();
+
     Type type = Exp(t, node);
+
     InterCode argCode = (InterCode)malloc(sizeof(struct InterCode_));
     if(type->kind == ARRAY){
         t->kind = VAR2ADDR;
@@ -891,6 +904,11 @@ char* new_lab(){
 
 //lab3 ing
 int isParam(char* name){
-
+    int i = 0;
+    while(i < sizeOfNames){
+        if(!strcmp(name, param_name_dec_ing[i]))
+            return 1;
+        i++;
+    }
     return 0;
 }

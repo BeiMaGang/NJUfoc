@@ -1,7 +1,11 @@
 
 int func(int i, int j, int w[10]){
-	j = w[1];
-	return 10;
+	j = w[1] + 50;
+	return 10 + w[1];
+}
+
+int add(int t, int jy[10]){
+	return jy[1] + 170;
 }
 
 int main()
@@ -10,5 +14,6 @@ int main()
 	int a[10][20];
 	int b[10];
 	k = func(10,a[2][1]+50,b);
+	k = read();
 	return 0;	
 }
