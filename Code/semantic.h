@@ -32,11 +32,12 @@ FieldList VarDec(struct TreeNode* node,Type type);
 
 
 Type Exp(Operand place, struct TreeNode* node);
+void Cond(Operand operand1, Operand operand2, struct TreeNode* node);
 
 int Args(struct TreeNode* node, FieldList param);
 
 char* new_temp();
 char* new_var();
-char* new_lab();
+char* new_label();
 int isParam(char* name);
 #endif

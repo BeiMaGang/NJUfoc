@@ -20,13 +20,13 @@ struct InterCode_ {
             ASSIGN, OPERATION, 
             GOTO, IF_GOTO, 
             FUNCTION_C, RETURN_C, ARG_C, 
-            DEC, PARAM, READ, WRITE
+            DEC, PARAM, READ, WRITE, LABEL
     } kind;
     union{
-        struct{ Operand right, left;}assign;
-        
+        struct{ Operand right, left;}assign; 
         struct{ Operand op;} sinop;
-        struct{ Operand result, op1, op2; char* sign} binop;
+        struct{ Operand result, op1, op2;char* sign} binop;
+        struct{ Operand t1, t2, label; char* op;} if_goto;
     }u;
     InterCode pre;
     InterCode next;

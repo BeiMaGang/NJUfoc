@@ -6,25 +6,28 @@ t7 := #1 * #4
 t3 := w + t7
 t2 := *t3 + #50
 j := t2
-t12 := #1 * #4
-t9 := w + t12
-#0 := #10 + *t9
+t13 := #1 * #4
+t10 := w + t13
+t8 := #10 + *t10
 FUNCTION add :
 PARAM t
 PARAM jy
-t17 := #1 * #4
-t13 := jy + t17
-#0 := *t13 + #170
+sh := #10
+t21 := #1 * #4
+t17 := jy + t21
+t16 := *t17 + #170
 FUNCTION main :
 DEC a 800
 DEC b 40
-t27 := #2 * #80
-t24 := &a + t27
-t29 := #1 * #4
-t22 := t24 + t29
-t21 := *t22 + #50
+t31 := #2 * #80
+t28 := &a + t31
+t33 := #1 * #4
+t26 := t28 + t33
+t25 := *t26 + #50
 ARG &b
-ARG t21
+ARG t25
 ARG #10
 k := CALL func
 k := CALL read
+ARG sh
+k := CALL write

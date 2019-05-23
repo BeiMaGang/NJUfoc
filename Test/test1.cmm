@@ -1,10 +1,11 @@
-
+int sh;
 int func(int i, int j, int w[10]){
 	j = w[1] + 50;
 	return 10 + w[1];
 }
 
 int add(int t, int jy[10]){
+	sh = 10;
 	return jy[1] + 170;
 }
 
@@ -15,5 +16,6 @@ int main()
 	int b[10];
 	k = func(10,a[2][1]+50,b);
 	k = read();
+	k = write(sh);
 	return 0;	
 }
