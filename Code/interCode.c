@@ -86,6 +86,24 @@ void printCode(){
                 fputs("\n", f);
                 break;
             }
+            case RETURN_C:{
+                fputs("RETURN ",f);
+                printOp(p->u.sinop.op);
+                fputs("\n", f);
+                break;
+            }
+            case IF_GOTO:{
+                fputs("IF ",f);
+                printOp(p->u.if_goto.t1);
+                fputs(" ",f);
+                fputs(p->u.if_goto.op,f);
+                fputs(" ",f);
+                printOp(p->u.if_goto.t2);
+                fputs(" GOTO ",f);
+                fputs(p->u.if_goto.label,f);
+                fputs("\n", f);
+                break;
+            }
         }
         p = p->next;
     }

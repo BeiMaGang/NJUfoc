@@ -220,7 +220,7 @@ void Stmt(struct TreeNode* node, Type type){
         Cond(operand_label1, operand_label2, node);
 
         InterCode label1Code = createInterCode();
-        label1Code->kind = LABEL;
+        label1Code->kind = LABEL_C;
         label1Code->u.sinop.op = operand_label1;
         //end
 
@@ -243,21 +243,21 @@ void Stmt(struct TreeNode* node, Type type){
             gotoCode->kind = GOTO;
             gotoCode->u.sinop.op = operand_label3;
             InterCode label2Code = createInterCode();
-            label2Code->kind = LABEL;
+            label2Code->kind = LABEL_C;
             label2Code->u.sinop.op = operand_label2;
             //end
             Stmt(node->broTree->broTree, type);
 
             //intercode wzr
             InterCode label3Code;
-            label3Code->kind = LABEL;
+            label3Code->kind = LABEL_C;
             label3Code->u.sinop.op = operand_label3;
             //end
         }else
         {
             //intercode wzr
             InterCode label2Code = createInterCode();
-            label2Code->kind = LABEL;
+            label2Code->kind = LABEL_C;
             label2Code->u.sinop.op = operand_label2;   
             //end
         }
@@ -278,7 +278,7 @@ void Stmt(struct TreeNode* node, Type type){
         operand_label3->kind = VAR;
 
         InterCode labelCode1 = createInterCode();
-        labelCode1->kind = LABEL;
+        labelCode1->kind = LABEL_C;
         labelCode1->u.sinop.op = operand_label1;
         //end
         
@@ -294,7 +294,7 @@ void Stmt(struct TreeNode* node, Type type){
         //intercode wzr
         Cond(operand_label2, operand_label3, node);
         InterCode labelCode2 = createInterCode();
-        labelCode2->kind = LABEL;
+        labelCode2->kind = LABEL_C;
         labelCode2->u.sinop.op = operand_label2;
         //end
 
@@ -310,7 +310,7 @@ void Stmt(struct TreeNode* node, Type type){
         gotoCode->u.sinop.op = operand_label1;
 
         InterCode labelCode3 = createInterCode();
-        labelCode3->kind = LABEL;
+        labelCode3->kind = LABEL_C;
         labelCode3->u.sinop.op = operand_label3;
         //end
     }
@@ -499,7 +499,7 @@ FieldList DecList(struct TreeNode* node,Type type){
     return rnt;
 }
 
-//ing
+//ing lab3 finished
 FieldList Dec(struct TreeNode* node,Type type){
     debug(node, "Dec");
 
@@ -514,7 +514,22 @@ FieldList Dec(struct TreeNode* node,Type type){
             error(15, node->broTree->line, "initial in Struct Field");
         }
         FieldList field = VarDec(node, type);
-        Type dstType = Exp(defaultPlace, node->broTree->broTree);
+
+        Operand rightOp = createOperand();
+        rightOp->kind = VAR;
+        rightOp->u.value = new_temp();
+
+        Operand leftOp = createOperand();
+        leftOp->kind = VAR;
+        leftOp->u.value = field->name;
+
+
+        Type dstType = Exp(rightOp, node->broTree->broTree);
+
+        InterCode assignCode = createInterCode();
+        assignCode->kind = ASSIGN;
+        assignCode->u.assign.left = leftOp;
+        assignCode->u.assign.right = rightOp;
         if(!typeEqual(field->type, dstType)){
             //error 5
             error(5, node->broTree->line, "Type mismatched for assignment");
@@ -568,6 +583,8 @@ FieldList VarDec(struct TreeNode* node,Type type){
                 sizeOfNames++;
             }
         }
+
+
 
         if(getTable(node->idType) == NULL){
             varInsertTable(node->idType, type);
@@ -1065,7 +1082,7 @@ void Cond(Operand operand_true, Operand operand_false, struct TreeNode* node){
         operand_label1->u.value = label1;
 
         InterCode label1Code = createInterCode();
-        label1Code->kind = LABEL;
+        label1Code->kind = LABEL_C;
         label1Code->u.sinop.op = operand_label1;
 
         Cond(operand_true, operand_false, node->broTree);
@@ -1077,7 +1094,7 @@ void Cond(Operand operand_true, Operand operand_false, struct TreeNode* node){
         operand_label1->u.value = label1;
 
         InterCode label1Code = createInterCode();
-        label1Code->kind = LABEL;
+        label1Code->kind = LABEL_C;
         label1Code->u.sinop.op = operand_label1;
         Cond(operand_true, operand_false, node->broTree);
     }

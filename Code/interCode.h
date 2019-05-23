@@ -5,7 +5,7 @@
 
 typedef struct Operand_* Operand;
 struct Operand_ {
-    enum{DEFAULT, VAR, CONSTANT_INT, CONSTANT_FLOAT, VAR2ADDR, ADDR2VAR, LABLE, CALL, _SIZE}kind;
+    enum{DEFAULT, VAR, CONSTANT_INT, CONSTANT_FLOAT, VAR2ADDR, ADDR2VAR, CALL, _SIZE}kind;
     union{
         int intVar;
         float floatVar;
@@ -20,7 +20,7 @@ struct InterCode_ {
             ASSIGN, OPERATION, 
             GOTO, IF_GOTO, 
             FUNCTION_C, RETURN_C, ARG_C, 
-            DEC, PARAM, READ, WRITE, LABEL
+            DEC, PARAM, READ, WRITE, LABEL_C
     } kind;
     union{
         struct{ Operand right, left;}assign; 

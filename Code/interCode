@@ -9,6 +9,7 @@ j := t2
 t13 := #1 * #4
 t10 := w + t13
 t8 := #10 + *t10
+RETURN t8
 FUNCTION add :
 PARAM t
 PARAM jy
@@ -16,18 +17,9 @@ sh := #10
 t21 := #1 * #4
 t17 := jy + t21
 t16 := *t17 + #170
+RETURN t16
 FUNCTION main :
-DEC a 800
-DEC b 40
-t31 := #2 * #80
-t28 := &a + t31
-t33 := #1 * #4
-t26 := t28 + t33
-t25 := *t26 + #50
-ARG &b
-ARG t25
-ARG #10
-k := CALL func
-k := CALL read
-ARG sh
-k := CALL write
+k := #10
+m := #1
+k := #1
+RETURN #0
