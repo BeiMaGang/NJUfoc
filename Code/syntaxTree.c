@@ -44,8 +44,10 @@ struct TreeNode* createNode(char* name, int num, ...){
             father->intType = atoi(yytext);
         }else if(!strcmp(father->name,"FLOAT")){
             father->floatType = atof(yytext);
-        }else{
-
+        }else if(!strcmp(father->name,"RELOP")){
+            char *temp_name = (char*)malloc(sizeof(char*) * 40);
+            strcpy(temp_name,yytext);
+            father->idType = temp_name;
         }
     }
 

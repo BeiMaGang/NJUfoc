@@ -1,34 +1,14 @@
-struct Student
-{
-	int name;
-	int age;
-	float address;
-};
 
-struct{
-	int ms;
-	int ssa;
-	float nidema;
-}friends[20];
-struct Student func(struct Student wugang, int i, int j){
-	wugang.name = i;
-	wugang.age = j;
-	wugang.address = 19970512.2;
-	wugang = friends[i];
-	return friends[wugang.name];
-}
-
-int func(){
-	return 0;
+int func(int i, int j, int w[10]){
+	j = w[1];
+	return 10;
 }
 
 int main()
 {
-	struct Student students[20];
-	int k = 1;
-	while(k < 20){
-		func(students[k], k, k + 20);
-		k = k + 1;
-	}
+	int k;
+	int a[10][20];
+	int b[10];
+	k = func(10,a[2][1]+50,b);
 	return 0;	
 }

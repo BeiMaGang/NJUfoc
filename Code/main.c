@@ -28,6 +28,7 @@ int main(int argc, char** argv){
         initSymbolTable();
         initCode();
         Program();
+        printf("start print\n");
         printCode();
     }
     return 0;

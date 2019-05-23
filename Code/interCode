@@ -1,0 +1,19 @@
+FUNCTION func :
+PARAM i
+PARAM j
+PARAM w
+t5 := #1 * #4
+t2 := &w + t5
+j := *t2
+FUNCTION main :
+DEC a 800
+DEC b 40
+t15 := #2 * #80
+t12 := &a + t15
+t17 := #1 * #4
+t10 := t12 + t17
+t9 := *t10 + #50
+ARG &b
+ARG t9
+ARG #10
+k := CALL func

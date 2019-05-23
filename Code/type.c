@@ -62,3 +62,19 @@ char* getFuncInf(Funtion src){
     strcat(rnt, ")");
     return rnt;
 }
+
+int sizeArray(Type type){
+    if(type->kind == BASIC)
+        return 4;
+    else if(type->kind == ARRAY)
+        return type->u.array.size * sizeArray(type->u.array.elem);
+    else if(type->kind == STRUCTURE){
+        int size = 0;
+        FieldList p = type->u.structure->fieldList;
+        while(p != NULL){
+            size += sizeArray(p->type);
+            p = p->tail;
+        }
+        return size;
+    }
+}

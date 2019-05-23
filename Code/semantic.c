@@ -6,12 +6,19 @@
 #include "symbolTable.h"
 #include "syntaxTree.h"
 
-// #define DEBUG    rr
+// #define DEBUG
 
-//#define Exp(defaultPlace, A) Exp(defaultPlace, A, "NULL")
+int T = 0;
+int V = 0;
+int L = 0;
+const int LEN = 5;
+int ARRAY_LEVEL = 0;
+Type NOW_ARRAY;
 
-#define GENERAL 0
-#define STRUCTURE_STATUS 1
+int PARAM_DEC_ING = 0;
+
+InterCode argCodes[128];
+int sizeOfCodes = 0;
 
 extern Term SymbolTable[SIZE];
 extern struct TreeNode* root;
@@ -108,13 +115,15 @@ void FunDec(struct TreeNode* node, Type type){
     InterCode funcCode = createInterCode();
     funcCode->kind = FUNCTION_C;
     Operand operand = createOperand();
-    operand->kind = CONSTANT;
+    operand->kind = VAR;
     operand->u.value = fun_name;
     funcCode->u.sinop.op = operand;
 
     if(!strcmp(node->broTree->broTree->name, "VarList")){
         //FunDec -> ID LP VarList RP
+        PARAM_DEC_ING = 1;
         function->paras = VarList(node->broTree->broTree);
+        PARAM_DEC_ING = 0;
     }else{
         function->paras = NULL;
     }
@@ -414,7 +423,7 @@ FieldList Dec(struct TreeNode* node,Type type){
     }
 }
 
-//finished lab3 ing
+//finished lab3 finished
 FieldList VarDec(struct TreeNode* node,Type type){
     debug(node, "VarDec");
     node = node->subTree;
@@ -426,6 +435,35 @@ FieldList VarDec(struct TreeNode* node,Type type){
         field->tail = NULL;
         field->name = node->idType;
         field->type = type;
+
+        //intercode decCode
+        if(type->kind == ARRAY && PARAM_DEC_ING == 0){
+            InterCode decCode = createInterCode();
+            decCode->kind = DEC;
+
+            Operand op1 = createOperand();
+            op1->kind = VAR;
+            op1->u.value = node->idType;
+
+            decCode->u.binop.op1 = op1;
+
+            Operand op2 = createOperand();
+            op2->kind = _SIZE;
+            op2->u.intVar = sizeArray(type);
+
+            decCode->u.binop.op2 = op2;
+        }
+
+        //intercode
+        if(PARAM_DEC_ING == 1){
+            InterCode paramCode = createInterCode();
+            paramCode->kind = PARAM;
+            Operand param = createOperand();
+            param->kind = VAR;
+            param->u.value = node->idType;
+            paramCode->u.sinop.op = param;
+        }
+
         if(getTable(node->idType) == NULL){
             varInsertTable(node->idType, type);
         }else{
@@ -462,14 +500,9 @@ Type Exp(Operand place, struct TreeNode* node){
         retType->u.basic = TYPE_FLOAT;
         retType->assign = RIGHT;
 
-        //intercode
-        // InterCode floatCode = createInterCode();
-        // floatCode->kind = ASSIGN;
-        // floatCode->u.assign.left = place;
-        // Operand right = createOperand();
-        // right->kind = CONSTANT;
-        // right->u.floatVar = node->floatType;
-        // floatCode->u.assign.right = right;
+        // intercode
+        place->kind = CONSTANT_FLOAT;
+        place->u.floatVar = node->floatType;
 
         return retType;
     }else if(!strcmp(node->name, "INT")){
@@ -478,12 +511,20 @@ Type Exp(Operand place, struct TreeNode* node){
         retType->kind = BASIC;
         retType->u.basic = TYPE_INT;
         retType->assign = RIGHT;
+
+        // intercode
+        place->kind = CONSTANT_INT;
+        place->u.intVar = node->intType;
+
         return retType;
     }else if(!strcmp(node->name, "ID")){
         //Exp -> ID ...
         if(node->broTree == NULL){
             //Exp -> ID
             Type typeID = getTable(node->idType);
+            if(typeID->kind == ARRAY){
+                NOW_ARRAY = typeID;
+            }
             if(typeID == NULL){
                 // error 1
                 error(1, node->line, infoCat("UnDefined variable ", node->idType));
@@ -492,6 +533,11 @@ Type Exp(Operand place, struct TreeNode* node){
             retType = (Type)malloc(sizeof(struct Type_));
             memcpy(retType, typeID, sizeof(struct Type_));
             retType->assign = LEFT;
+
+            //interCode finished
+            place->kind = VAR;
+            place->u.value = node->idType;
+
             return retType;
         }else if(!strcmp(node->broTree->name, "LP")){
             // Exp -> ID LP Args RP | ID LP RP
@@ -516,12 +562,22 @@ Type Exp(Operand place, struct TreeNode* node){
                 }
             }else{
                 //ID LP Args RP
+                sizeOfCodes = 0;
                 if(Args(node, param) == 0){
                     //error 9
                     error(9, node->line, infoCat("Function param is not matched :", getFuncInf(func->u.funtion)));
                     return DEFAULT_TYPE;
                 }
+                int i = sizeOfCodes - 1;
+                while(i >= 0){
+                    insertCode(argCodes[i]);
+                    i--;
+                }
             }
+
+            //intercode 
+            place->kind = CALL;
+            place->u.value = func->u.funtion->name;
             retType = (Type)malloc(sizeof(struct Type_));
             memcpy(retType, func->u.funtion->retType, sizeof(struct Type_));
             retType->assign = RIGHT;
@@ -530,11 +586,25 @@ Type Exp(Operand place, struct TreeNode* node){
     }else if(!strcmp(node->name, "Exp")){
         //Exp -> Exp ...
         struct TreeNode* fstChild = node;
-        Type p1 = Exp(defaultPlace, node);
         node = node->broTree;
         if(!strcmp(node->name, "ASSIGNOP")){
+
+            Operand t1 = createOperand();
+            t1->kind = VAR;
+            t1->u.value = new_temp();
+            Type p1 = Exp(t1, fstChild);
             //Exp -> Exp ASSIGNOP Exp
-            Type p2 = Exp(defaultPlace, node->broTree);
+
+            //intercode
+            Operand t2 = createOperand();
+            t2->kind = VAR;
+            t2->u.value = new_temp();
+            Type p2 = Exp(t2, node->broTree);
+            InterCode assignCode = createInterCode();
+            assignCode->kind = ASSIGN;
+            assignCode->u.assign.left = t1;
+            assignCode->u.assign.right = t2;
+
             if(p1->assign != LEFT){
                 //error 6
                 error(6, node->line, "The left-hand side of an assignment must be a variable");
@@ -550,6 +620,7 @@ Type Exp(Operand place, struct TreeNode* node){
                 !strcmp(node->name, "OR")||
                 !strcmp(node->name, "RELOP")){
             //Exp -> Exp AND|OR|RELOP Exp
+            Type p1 = Exp(defaultPlace, fstChild);
             Type p2 = Exp(defaultPlace, node->broTree);
             if(!(p1->kind == BASIC && p1->u.basic == TYPE_INT && 
                 p2->kind == BASIC && p2->u.basic == TYPE_INT)){
@@ -567,7 +638,25 @@ Type Exp(Operand place, struct TreeNode* node){
                 !strcmp(node->name, "DIV")){
             // Exp -> Exp +-*/ Exp
             
-            Type p2 = Exp(defaultPlace, node->broTree);
+            //intercode
+            Operand t1 = createOperand();
+            Operand t2 = createOperand();
+            t1->kind = VAR;
+            t2->kind = VAR;
+            t1->u.value = new_temp();
+            t2->u.value = new_temp();
+
+            Type p1 = Exp(t1, fstChild);
+            Type p2 = Exp(t2, node->broTree);
+            
+            InterCode calCode = createInterCode();
+            calCode->kind = OPERATION;
+            calCode->u.binop.op1 = t1;
+            calCode->u.binop.op2 = t2;
+            calCode->u.binop.result = place;
+            calCode->u.binop.sign = node->name;
+
+
             if(typeEqual(p1, p2) && p1->kind == BASIC){
                 retType = (Type)malloc(sizeof(struct Type_));
                 memcpy(retType, p1, sizeof(struct Type_));
@@ -580,7 +669,65 @@ Type Exp(Operand place, struct TreeNode* node){
             }
         }else if(!strcmp(node->name, "LB")){
             // Exp -> Exp LB Exp RB
-            Type p2 = Exp(defaultPlace, node->broTree);
+
+
+            //intercode finished
+            Operand t1 = createOperand();
+            t1->u.value = new_temp();
+            t1->kind = VAR;
+            Type p1 = Exp(t1, fstChild);
+
+            ARRAY_LEVEL++;
+            if(ARRAY_LEVEL == 1 && !isParam(t1->u.value)){
+                t1->kind = VAR2ADDR;
+            }
+            Operand t2 = createOperand();
+            t2->kind = VAR;
+            t2->u.value = new_temp();
+            Type p2 = Exp(t2, node->broTree);
+
+            place->kind = ADDR2VAR;
+
+            InterCode starCode = createInterCode();
+            starCode->kind = OPERATION;
+            starCode->u.binop.op1 = t2;
+
+            assert(NOW_ARRAY != NULL);
+            NOW_ARRAY = NOW_ARRAY->u.array.elem;
+
+            Operand rightStar = createOperand();
+            rightStar->kind = CONSTANT_INT;
+            rightStar->u.intVar = sizeArray(NOW_ARRAY);
+
+            starCode->u.binop.op2 = rightStar;
+            Operand result = createOperand();
+            result->kind = VAR;
+            result->u.value = new_temp();
+            starCode->u.binop.result = result;
+            starCode->u.binop.sign = "STAR";
+
+            InterCode plusCode = createInterCode();
+            plusCode->kind = OPERATION;
+
+            Operand resultPlus = createOperand();
+            memcpy(resultPlus, place, sizeof(struct Operand_));
+            resultPlus->kind = VAR;
+
+            Operand leftPlus = createOperand();
+            memcpy(leftPlus, t1, sizeof(struct Operand_));
+            leftPlus->kind = VAR;
+            if(ARRAY_LEVEL == 1 && !isParam(t1->u.value))
+                leftPlus->kind = VAR2ADDR;
+
+            plusCode->u.binop.op1 = leftPlus;
+            plusCode->u.binop.op2 = result;
+            plusCode->u.binop.result = resultPlus;
+            plusCode->u.binop.sign = "PLUS";
+
+            if(NOW_ARRAY->kind == BASIC){
+                ARRAY_LEVEL = 0;
+            }
+
             if(!(p2->kind == BASIC && p2->u.basic == TYPE_INT)){
                 // error 12
                 error(12, node->line, "Array access should be a integer");
@@ -598,6 +745,7 @@ Type Exp(Operand place, struct TreeNode* node){
             return retType;
         }else if(!strcmp(node->name, "DOT")){
             //Exp -> Exp DOT ID
+            Type p1 = Exp(defaultPlace, fstChild);
             if(p1->kind != STRUCTURE){
                 //error 13
                 error(13, node->line, "this is not a struct");
@@ -637,7 +785,23 @@ Type Exp(Operand place, struct TreeNode* node){
         return retType;
     }else if(!strcmp(node->name, "MINUS")){
         //Exp -> MinUS Exp
-        Type p = Exp(defaultPlace, node->broTree);
+
+        //intercode
+        Operand t = createOperand();
+        t->kind = VAR;
+        t->u.value = new_temp();
+        Type p = Exp(t, node->broTree);
+        InterCode minusCode = createInterCode();
+        minusCode->kind = OPERATION;
+        minusCode->u.binop.sign = node->name;
+        Operand t1 = createOperand();
+        t1->kind = CONSTANT_INT;
+        t1->u.intVar = 0;
+        minusCode->u.binop.op1 = t1;
+        minusCode->u.binop.op2 = t;
+        minusCode->u.binop.result = place;
+
+
         if(p->kind == BASIC){
             retType = (Type)malloc(sizeof(struct Type_));
             memcpy(retType, p, sizeof(struct Type_));
@@ -655,7 +819,7 @@ Type Exp(Operand place, struct TreeNode* node){
     // printf("Exp error \n");
 }
 
-//finished
+//finished lab3 finished
 int Args(struct TreeNode* node, FieldList param){
     debug(node, "Args");
     if(param == NULL){
@@ -663,7 +827,22 @@ int Args(struct TreeNode* node, FieldList param){
     }
 
     node = node->subTree;
-    Type type = Exp(defaultPlace, node);
+
+
+    //intercode
+    Operand t = createOperand();
+    t->kind = VAR;
+    t->u.value = new_temp();
+    Type type = Exp(t, node);
+    InterCode argCode = (InterCode)malloc(sizeof(struct InterCode_));
+    if(type->kind == ARRAY){
+        t->kind = VAR2ADDR;
+    }
+    argCode->kind = ARG_C;
+    argCode->u.sinop.op = t;
+    sizeOfCodes++;
+    argCodes[sizeOfCodes - 1] = argCode;
+
     if(!typeEqual(param->type, type)){
         return 0;
     }
@@ -675,4 +854,43 @@ int Args(struct TreeNode* node, FieldList param){
             return 0;
     }
     return 1;
+}
+
+char* new_temp(){
+    T = T + 1;
+    char* v = (char*)malloc(LEN);
+    memset(v, 0, LEN);
+    strcat(v, "t");
+    char num[LEN - 1];
+    sprintf(num, "%d",T);
+    strcat(v, num);
+    return v;
+}
+
+char* new_var(){
+    V = V + 1;
+    char* v = (char*)malloc(LEN);
+    memset(v, 0, LEN);
+    strcat(v, "v");
+    char num[LEN-1];
+    sprintf(num, "%d",V);
+    strcat(v, num);
+    return v;
+}
+
+char* new_lab(){
+    L = L + 1;
+    char* v = (char*)malloc(LEN + 5);
+    memset(v, 0, LEN + 5);
+    strcat(v, "v");
+    char num[LEN + 5 - 1];
+    sprintf(num, "%d",V);
+    strcat(v, num);
+    return v;
+}
+
+//lab3 ing
+int isParam(char* name){
+
+    return 0;
 }

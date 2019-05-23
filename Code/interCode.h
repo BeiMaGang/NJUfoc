@@ -5,7 +5,7 @@
 
 typedef struct Operand_* Operand;
 struct Operand_ {
-    enum{ VAR, CONSTANT, VAR2ADDR, ADDR2VAR }kind;
+    enum{DEFAULT, VAR, CONSTANT_INT, CONSTANT_FLOAT, VAR2ADDR, ADDR2VAR, LABLE, CALL, _SIZE}kind;
     union{
         int intVar;
         float floatVar;
@@ -15,13 +15,18 @@ struct Operand_ {
 
 typedef struct InterCode_* InterCode; 
 struct InterCode_ {
-    enum {CODE_BEGIN, ASSIGN, ADD, SUB, MUL, DIV, 
-        GOTO, IF_GOTO, FUNCTION_C, RETURN_C, DEC, PARAM, READ, WRITE, CALL} kind;
+    enum {
+            CODE_BEGIN, 
+            ASSIGN, OPERATION, 
+            GOTO, IF_GOTO, 
+            FUNCTION_C, RETURN_C, ARG_C, 
+            DEC, PARAM, READ, WRITE
+    } kind;
     union{
         struct{ Operand right, left;}assign;
         
         struct{ Operand op;} sinop;
-        struct{ Operand result, op1, op2;} binop;
+        struct{ Operand result, op1, op2; char* sign} binop;
     }u;
     InterCode pre;
     InterCode next;

@@ -16,7 +16,7 @@ struct Type_* DEFAULT_TYPE;
 void initialType();
 char* getFuncInf(Funtion src);
 int typeEqual(Type src, Type dst);
-
+int sizeArray(Type array);
 
 
 struct Type_{
