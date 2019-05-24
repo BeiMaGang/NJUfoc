@@ -43,9 +43,9 @@ int main()
 	return 0;
 }*/
 
-int add(int temp[2])
+int add(int temp[2][2])
 {
-	return (temp[0] + temp[1]);
+	return (temp[0][0] + temp[1][1]);
 }
 
 int del(int temp1[2])
@@ -54,19 +54,19 @@ int del(int temp1[2])
 }
 int main()
 {
-	int op[2];
-	int r[1][2];
+	int op[2][2];
+	int r[1][2][5];
 	int t1 = 50;
  	int i = 0, j = 0;
 	while (i < 2)
 	{
 		while (j < 2)
 		{
-			op[j] = i + j;
+			op[j][j] = i + j;
 			j = j + 1;
 		}
-		r[0][i] = del(op);
-		write(r[0][i]);
+		r[0][i][i] = add(op);
+		write(r[0][i][i]);
 		i = i + 1;
 		j = 0;
 	}

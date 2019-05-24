@@ -665,7 +665,6 @@ Type Exp(Operand place, struct TreeNode* node){
             return retType;
         }else if(!strcmp(node->broTree->name, "LP")){
             // Exp -> ID LP Args RP | ID LP RP
-            printf("func %s\n", node->idType);
             Type func = getTable(node->idType);
             if(func == NULL){
                 // error 2
