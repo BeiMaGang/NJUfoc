@@ -29,6 +29,8 @@ void insertCode(InterCode code){
 
 void printCode(){
     f = fopen("interCode.ir", "w");
+    optimizeGoto();
+    deleteLabel();
     InterCode p = begin->next;
     while(p->kind != CODE_BEGIN){
         switch(p->kind){
@@ -194,7 +196,7 @@ InterCode createInterCode(){
 
 void optimizeGoto(){
     InterCode interCode;
-    for(interCode=begin; interCode->kind != CODE_BEGIN; interCode=interCode->next){
+    for(interCode = begin->next; interCode->kind != CODE_BEGIN; interCode=interCode->next){
         if(interCode->kind == IF_GOTO){
             InterCode interCodo_if_goto = interCode;
             InterCode interCode_goto = interCode->next;
@@ -207,9 +209,10 @@ void optimizeGoto(){
                 continue;
             }
 
-            if(interCode_goto->kind == GOTO && interCode_label->kind == LABEL_C && interCodo_if_goto->u.if_goto.label==interCode_label->u.sinop.op){
-                interCodo_if_goto->u.if_goto.label = interCode_label->u.sinop.op;
-                deleteNode(interCode_label);
+            if(interCode_goto->kind == GOTO && interCode_label->kind == LABEL_C && 
+                interCodo_if_goto->u.if_goto.label == interCode_label->u.sinop.op){
+                interCodo_if_goto->u.if_goto.label = interCode_goto->u.sinop.op;
+                deleteNode(interCode_goto);
 
                 if(!strcmp(interCodo_if_goto->u.if_goto.op,"==")){
                     char* opposite_op = malloc(4);
