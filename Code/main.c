@@ -11,7 +11,7 @@ int main(int argc, char** argv){
         yyparse();
     }
     else{
-        for(int i = 1; i < argc; i++){
+        for(int i = 1; i < argc - 1; i++){
             FILE *f = fopen(argv[i],"r");
             if(!f){
                 perror(argv[i]);
@@ -28,7 +28,7 @@ int main(int argc, char** argv){
         initSymbolTable();
         initCode();
         Program();
-        printCode();
+        printCode(argv[argc - 1]);
     }
     return 0;
 }

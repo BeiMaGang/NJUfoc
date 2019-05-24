@@ -29,8 +29,8 @@ void insertCode(InterCode code){
 }
 
 
-void printCode(){
-    f = fopen("interCode.ir", "w");
+void printCode(char* file){
+    f = fopen(file, "w");
 #ifdef OPTIMIZE
     optimizeGoto();
     deleteLabel();

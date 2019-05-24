@@ -38,7 +38,7 @@ InterCode begin;
 void initCode();
 void insertCode(InterCode code);
 void printOp(Operand operand);
-void printCode();
+void printCode(char* file);
 void optimizeGoto();
 void optimizeOperate();
 void deleteNode();
