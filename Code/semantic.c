@@ -612,6 +612,7 @@ FieldList VarDec(struct TreeNode* node,Type type){
 //finished  lab3 ing
 Type Exp(Operand place, struct TreeNode* node){
     debug(node, "Exp");
+    struct TreeNode* temp_head = node;
     node = node->subTree;
 
     Type retType = NULL;
@@ -801,7 +802,7 @@ Type Exp(Operand place, struct TreeNode* node){
 
             assignCode->u.assign.right = zero;
 
-            Cond(label1, label2, fstChild);
+            Cond(label1, label2, temp_head);
 
             //label1
             InterCode label1Code = createInterCode();
@@ -1095,7 +1096,7 @@ char* new_temp(){
         T = T + 1;
         v = (char*)malloc(LEN);
         memset(v, 0, LEN);
-        strcat(v, "5t");
+        strcat(v, "tT");
         char num[LEN - 1];
         sprintf(num, "%d",T);
         strcat(v, num);
@@ -1118,7 +1119,7 @@ char* new_label(){
     L = L + 1;
     char* v = (char*)malloc(LEN + 5);
     memset(v, 0, LEN + 5);
-    strcat(v, "5label");
+    strcat(v, "lAbEl");
     char num[LEN + 5 - 1];
     sprintf(num, "%d",L);
     strcat(v, num);
@@ -1137,6 +1138,7 @@ int isParam(char* name){
 }
 //lab3 finished wzr
 void Cond(Operand operand_true, Operand operand_false, struct TreeNode* node){
+    debug(node, "Exp");
     struct TreeNode* fst = node;
     node = node->subTree;
     if(!strcmp(node->name, "NOT")){

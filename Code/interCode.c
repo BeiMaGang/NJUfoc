@@ -6,6 +6,8 @@
 
 #include "interCode.h"
 
+#define OPTIMIZE
+
 FILE* f;
 void initCode(){
     begin = (InterCode)malloc(sizeof(struct InterCode_));
@@ -29,8 +31,11 @@ void insertCode(InterCode code){
 
 void printCode(){
     f = fopen("interCode.ir", "w");
+#ifdef OPTIMIZE
     optimizeGoto();
     deleteLabel();
+    optimizeOperate();
+#endif
     InterCode p = begin->next;
     while(p->kind != CODE_BEGIN){
         switch(p->kind){
@@ -134,7 +139,6 @@ void printCode(){
         }
         p = p->next;
     }
-    printf("print finished\n");
     fclose(f);
 }
 
@@ -209,8 +213,10 @@ void optimizeGoto(){
                 continue;
             }
 
-            if(interCode_goto->kind == GOTO && interCode_label->kind == LABEL_C && 
+            if(interCode_goto->kind == GOTO && 
+                interCode_label->kind == LABEL_C && 
                 interCodo_if_goto->u.if_goto.label == interCode_label->u.sinop.op){
+                    
                 interCodo_if_goto->u.if_goto.label = interCode_goto->u.sinop.op;
                 deleteNode(interCode_goto);
 
@@ -247,7 +253,7 @@ void optimizeGoto(){
                 }
             }
         }else if(interCode->kind == GOTO){
-            InterCode interCode_goto = initCode;
+            InterCode interCode_goto = interCode;
             InterCode interCode_label = interCode_goto->next;
             if(interCode_label->kind == CODE_BEGIN){
                 continue;
@@ -259,11 +265,61 @@ void optimizeGoto(){
     }
 }
 
+void optimizeOperate(){
+    while(1){
+        int isChanged = 0;
+        InterCode code = begin->next;
+        while(code->kind != CODE_BEGIN){
+            if(code->kind == OPERATION){
+                if(isTemp(code->u.binop.result->u.value) &&
+                    (code->u.binop.op1->kind == code->u.binop.op2->kind) && 
+                (code->u.binop.op1->kind == CONSTANT_INT || code->u.binop.op1->kind == CONSTANT_FLOAT)){
+                    isChanged = 1;
+                    if(code->u.binop.op1->kind == CONSTANT_INT){
+                        code->u.binop.result->kind = CONSTANT_INT;
+                        int temp = 0;
+                        if(!strcmp(code->u.binop.sign, "PLUS")){
+                            temp = code->u.binop.op1->u.intVar + code->u.binop.op2->u.intVar;
+                        }else if(!strcmp(code->u.binop.sign, "MINUS")){
+                            temp = code->u.binop.op1->u.intVar - code->u.binop.op2->u.intVar;
+                        }else if(!strcmp(code->u.binop.sign, "STAR")){
+                            temp = code->u.binop.op1->u.intVar * code->u.binop.op2->u.intVar;
+                        }else if(!strcmp(code->u.binop.sign, "DIV")){
+                            temp = code->u.binop.op1->u.intVar / code->u.binop.op2->u.intVar;
+                        }
+                        code->u.binop.result->u.intVar = temp;
+                    }else{
+                        code->u.binop.result->kind = CONSTANT_FLOAT;
+                        float temp;
+                        if(!strcmp(code->u.binop.sign, "PLUS")){
+                            temp = code->u.binop.op1->u.floatVar + code->u.binop.op2->u.floatVar;
+                        }else if(!strcmp(code->u.binop.sign, "MINUS")){
+                            temp = code->u.binop.op1->u.floatVar - code->u.binop.op2->u.floatVar;
+                        }else if(!strcmp(code->u.binop.sign, "STAR")){
+                            temp = code->u.binop.op1->u.floatVar * code->u.binop.op2->u.floatVar;
+                        }else if(!strcmp(code->u.binop.sign, "DIV")){
+                            temp = code->u.binop.op1->u.floatVar / code->u.binop.op2->u.floatVar;
+                        }
+                        code->u.binop.result->u.floatVar = temp;
+                    }
+                    InterCode temp = code;
+                    code = code->next;
+                    deleteNode(temp);
+                }else
+                    code = code->next;
+            }else
+                code = code->next;
+        }
+        if(!isChanged)
+            break;
+    }
+}
+
 void deleteNode(InterCode intercode){
     InterCode temp = intercode;
     intercode->pre->next = intercode->next;
     intercode->next->pre = intercode->pre;
-    delete(temp);
+    free(temp);
 }
 
 
@@ -279,11 +335,17 @@ void deleteLabel(){
             if(interCode_next->kind == LABEL_C){
                 Operand operand = interCode->u.sinop.op;
                 Operand operand_next = interCode_next->u.sinop.op;
-                redirect_label(operand, operand_next);
-            }
-        }
 
-        interCode=interCode->next;
+                InterCode temp = interCode;
+                interCode = interCode->next;
+                deleteNode(temp);
+                redirect_label(operand, operand_next);
+            }else{
+                interCode = interCode->next;
+            }
+        }else{
+            interCode=interCode->next;
+        }
     }
 }
 
@@ -302,4 +364,10 @@ void redirect_label(Operand operand, Operand operand_next){
 
         intercode=intercode->next;
     }
+}
+
+int isTemp(char* name){
+    if(name[0] == 't' && name[1] == 'T')
+        return 1;
+    return 0;
 }

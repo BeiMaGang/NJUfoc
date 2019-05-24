@@ -40,10 +40,11 @@ void insertCode(InterCode code);
 void printOp(Operand operand);
 void printCode();
 void optimizeGoto();
+void optimizeOperate();
 void deleteNode();
 void deleteLabel();
 void redirect_label(Operand operand, Operand operand_next);
-
+int isTemp(char* name);
 Operand createOperand();
 InterCode createInterCode();
 

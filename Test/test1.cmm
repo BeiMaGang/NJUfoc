@@ -1,21 +1,19 @@
-/*
+
 int main(){
-	int k = 10;
-	int m = 50;
-	if(k > m && m > 2)
-		write(m);
-	if(k > m || m > 2)
+	int k,m;
+	k = 10 + 20;
+	m = k + 20;
+	k = 20;
+	if(!(10 > 50)){
 		write(k);
-	while(!(k > m)){
-		write(3);
 	}
 	return 0;
 }
-*/
+
 /*
 int main(){
-	int n;
-	int k = !0;
+	int n = 5>50;
+	int tT10 = 50 + 50;	
 	n = read();
 	if(n > 0) write(1);
 	else if(n < 0) write(-1);
@@ -41,11 +39,12 @@ int main()
  		result = 1;
 	write(result);
 	return 0;
-}*/
-
-int add(int temp[2][2])
+}
+*/
+/*
+int add(int temp[2])
 {
-	return (temp[0][0] + temp[1][1]);
+	return (temp[0] + temp[1]);
 }
 
 int del(int temp1[2])
@@ -54,25 +53,20 @@ int del(int temp1[2])
 }
 int main()
 {
-	int op[2][2];
-	int r[1][2][5];
-	int t1 = 50;
- 	int i = 0, j = 0;
-	while (i < 2)
-	{
-		while (j < 2)
-		{
-			op[j][j] = i + j;
-			j = j + 1;
-		}
-		r[0][i][i] = add(op);
-		write(r[0][i][i]);
+	int num;
+	int op[2][2][200];
+	int i = 2;
+	num = read();
+	op[1][1][0] = 1;
+	op[1][1][1] = 1;
+	while(i < num){
+		op[1][1][i] = op[1][1][i - 1] + op[1][1][i - 2];
+		write(op[1][1][i]);
 		i = i + 1;
-		j = 0;
 	}
 	return 0;
 }
-
+*/
 /*
 struct Operands
 {
