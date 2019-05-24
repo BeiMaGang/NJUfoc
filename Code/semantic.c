@@ -6,12 +6,12 @@
 #include "symbolTable.h"
 #include "syntaxTree.h"
 
-#define DEBUG
+// #define DEBUG
 
 int T = 0;
 int V = 0;
 int L = 0;
-const int LEN = 5;
+const int LEN = 10;
 int ARRAY_LEVEL = 0;
 Type NOW_ARRAY;
 
@@ -206,7 +206,7 @@ void Stmt(struct TreeNode* node, Type type){
         assert(!strcmp(node->name, "Exp"));
 
         //Stmt -> IF LP Exp RP Stmt
-        Type ifType = Exp(defaultPlace, node);
+        // Type ifType = Exp(defaultPlace, node);
 
         //intercode wzr
         Operand operand_label1 = createOperand();
@@ -223,12 +223,12 @@ void Stmt(struct TreeNode* node, Type type){
         label1Code->kind = LABEL_C;
         label1Code->u.sinop.op = operand_label1;
         //end
-
+/*
         if(ifType->kind != BASIC || ifType->u.basic != TYPE_INT){
             //error 7
             error(7, node->line, "if judge condition only int");
         }
-
+*/
         node = node->broTree->broTree;
         //node is Stmt
         assert(!strcmp(node->name, "Stmt"));
@@ -249,12 +249,11 @@ void Stmt(struct TreeNode* node, Type type){
             Stmt(node->broTree->broTree, type);
 
             //intercode wzr
-            InterCode label3Code;
+            InterCode label3Code = createInterCode();
             label3Code->kind = LABEL_C;
             label3Code->u.sinop.op = operand_label3;
             //end
-        }else
-        {
+        }else{
             //intercode wzr
             InterCode label2Code = createInterCode();
             label2Code->kind = LABEL_C;
@@ -289,7 +288,7 @@ void Stmt(struct TreeNode* node, Type type){
         //node is Exp;
         assert(!strcmp(node->name, "Exp"));
         
-        Type ifType = Exp(defaultPlace, node);
+        // Type ifType = Exp(defaultPlace, node);
 
         //intercode wzr
         Cond(operand_label2, operand_label3, node);
@@ -297,11 +296,12 @@ void Stmt(struct TreeNode* node, Type type){
         labelCode2->kind = LABEL_C;
         labelCode2->u.sinop.op = operand_label2;
         //end
-
+/*
         if(ifType->kind != BASIC || ifType->u.basic != TYPE_INT){
             //error 7
             error(7, node->line, "while judge condition only int");
         }
+*/
         Stmt(node->broTree->broTree, type);
 
         //intercode wzr
@@ -694,16 +694,38 @@ Type Exp(Operand place, struct TreeNode* node){
                     return DEFAULT_TYPE;
                 }
                 int i = sizeOfCodes - 1;
-                while(i >= 0){
+                while(i >= 0 && strcmp(func->u.funtion->name, "write")){
                     insertCode(argCodes[i]);
                     i--;
                 }
             }
 
-            //intercode 
-            place->kind = CALL;
-            place->u.value = func->u.funtion->name;
+            //intercode
+            if(!strcmp(func->u.funtion->name, "write")){
+                InterCode writeCode = createInterCode();
+                writeCode->kind = WRITE;
+                writeCode->u.sinop.op = argCodes[0]->u.sinop.op;
+            }else if(!strcmp(func->u.funtion->name, "read")){
+                InterCode readCode = createInterCode();
+                readCode->kind = READ;
+                readCode->u.sinop.op = place;
+            }else{
+                // place->kind = CALL;
+                // place->u.value = func->u.funtion->name;
+                InterCode callCode = createInterCode();
+                callCode->kind = ASSIGN;
+
+                Operand call = createOperand();
+                call->kind = CALL;
+                call->u.value = func->u.funtion->name;
+
+                callCode->u.assign.left = place;
+                callCode->u.assign.right = call;
+            }
             
+            // place->kind = CALL;
+            // place->u.value = func->u.funtion->name;
+
             retType = (Type)malloc(sizeof(struct Type_));
             memcpy(retType, func->u.funtion->retType, sizeof(struct Type_));
             retType->assign = RIGHT;
@@ -746,18 +768,59 @@ Type Exp(Operand place, struct TreeNode* node){
                 !strcmp(node->name, "OR")||
                 !strcmp(node->name, "RELOP")){
             //Exp -> Exp AND|OR|RELOP Exp
-            Type p1 = Exp(defaultPlace, fstChild);
-            Type p2 = Exp(defaultPlace, node->broTree);
-            if(!(p1->kind == BASIC && p1->u.basic == TYPE_INT && 
-                p2->kind == BASIC && p2->u.basic == TYPE_INT)){
-                //error 7
-                error(7, node->line, "Type mismatched for operands, Only int");
-                return DEFAULT_TYPE;
-            }
-            retType = (Type)malloc(sizeof(struct Type_));
-            memcpy(retType, p1, sizeof(struct Type_));
-            retType->assign = RIGHT;
-            return retType;
+            // Type p1 = Exp(defaultPlace, fstChild);
+            // Type p2 = Exp(defaultPlace, node->broTree);
+            // if(!(p1->kind == BASIC && p1->u.basic == TYPE_INT && 
+            //     p2->kind == BASIC && p2->u.basic == TYPE_INT)){
+            //     //error 7
+            //     error(7, node->line, "Type mismatched for operands, Only int");
+            //     return DEFAULT_TYPE;
+            // }
+            // retType = (Type)malloc(sizeof(struct Type_));
+            // memcpy(retType, p1, sizeof(struct Type_));
+            // retType->assign = RIGHT;
+            // return retType;
+
+            Operand label1 = createOperand();
+            label1->kind = VAR;
+            label1->u.value = new_label();
+            Operand label2 = createOperand();
+            label2->kind = VAR;
+            label2->u.value = new_label();
+            // place = 0
+            InterCode assignCode = createInterCode();
+            assignCode->kind = ASSIGN;
+            assignCode->u.assign.left = place;
+
+            Operand zero = createOperand();
+            zero->kind = CONSTANT_INT;
+            zero->u.intVar = 0;
+
+            Operand one = createOperand();
+            one->kind = CONSTANT_INT;
+            one->u.intVar = 1;
+
+            assignCode->u.assign.right = zero;
+
+            Cond(label1, label2, fstChild);
+
+            //label1
+            InterCode label1Code = createInterCode();
+            label1Code->kind = LABEL_C;
+            label1Code->u.sinop.op = label1;
+
+            //place = 1;
+            InterCode assign1Code = createInterCode();
+            assign1Code->kind = ASSIGN;
+            assign1Code->u.assign.left = place;
+            assign1Code->u.assign.right = one;
+
+            //label2
+            InterCode label2Code = createInterCode();
+            label2Code->kind = LABEL_C;
+            label2Code->u.sinop.op = label2;
+
+            return DEFAULT_TYPE;
         }else if(!strcmp(node->name, "PLUS")||
                 !strcmp(node->name, "MINUS")||
                 !strcmp(node->name, "STAR")||
@@ -871,6 +934,8 @@ Type Exp(Operand place, struct TreeNode* node){
             return retType;
         }else if(!strcmp(node->name, "DOT")){
             //Exp -> Exp DOT ID
+            printf("Cannot translate: Code contains variables or parameters of structure type.\n");
+            exit(-1);
             Type p1 = Exp(defaultPlace, fstChild);
             if(p1->kind != STRUCTURE){
                 //error 13
@@ -899,6 +964,7 @@ Type Exp(Operand place, struct TreeNode* node){
         }
     }else if(!strcmp(node->name, "NOT")){
         //Exp -> NOT Exp
+        /*
         Type p = Exp(defaultPlace, node->broTree);
         if(!(p->kind == BASIC && p->u.basic == TYPE_INT)){
             //error 7
@@ -908,7 +974,47 @@ Type Exp(Operand place, struct TreeNode* node){
         retType = (Type)malloc(sizeof(struct Type_));
         memcpy(retType, p, sizeof(struct Type_));
         retType->assign = RIGHT;
-        return retType;
+        */
+
+            Operand label1 = createOperand();
+            label1->kind = VAR;
+            label1->u.value = new_label();
+            Operand label2 = createOperand();
+            label2->kind = VAR;
+            label2->u.value = new_label();
+            // place = 0
+            InterCode assignCode = createInterCode();
+            assignCode->kind = ASSIGN;
+            assignCode->u.assign.left = place;
+
+            Operand zero = createOperand();
+            zero->kind = CONSTANT_INT;
+            zero->u.intVar = 0;
+
+            Operand one = createOperand();
+            one->kind = CONSTANT_INT;
+            one->u.intVar = 1;
+
+            assignCode->u.assign.right = zero;
+            assert(!strcmp("Exp", node->broTree->name));
+            Cond(label2, label1, node->broTree);
+
+            //label1
+            InterCode label1Code = createInterCode();
+            label1Code->kind = LABEL_C;
+            label1Code->u.sinop.op = label1;
+
+            //place = 1;
+            InterCode assign1Code = createInterCode();
+            assign1Code->kind = ASSIGN;
+            assign1Code->u.assign.left = place;
+            assign1Code->u.assign.right = one;
+
+            //label2
+            InterCode label2Code = createInterCode();
+            label2Code->kind = LABEL_C;
+            label2Code->u.sinop.op = label2;
+        return DEFAULT_TYPE;
     }else if(!strcmp(node->name, "MINUS")){
         //Exp -> MinUS Exp
 
@@ -939,7 +1045,7 @@ Type Exp(Operand place, struct TreeNode* node){
             return DEFAULT_TYPE;
         }
     }else if(!strcmp(node->name, "LP")){
-        return Exp(defaultPlace, node->broTree);
+        return Exp(place, node->broTree);
     }
 
     // printf("Exp error \n");
@@ -985,13 +1091,16 @@ int Args(struct TreeNode* node, FieldList param){
 }
 
 char* new_temp(){
-    T = T + 1;
-    char* v = (char*)malloc(LEN);
-    memset(v, 0, LEN);
-    strcat(v, "t");
-    char num[LEN - 1];
-    sprintf(num, "%d",T);
-    strcat(v, num);
+    char* v;
+    do{
+        T = T + 1;
+        v = (char*)malloc(LEN);
+        memset(v, 0, LEN);
+        strcat(v, "5t");
+        char num[LEN - 1];
+        sprintf(num, "%d",T);
+        strcat(v, num);
+    }while(getTable(v)!=NULL);
     return v;
 }
 
@@ -1010,14 +1119,14 @@ char* new_label(){
     L = L + 1;
     char* v = (char*)malloc(LEN + 5);
     memset(v, 0, LEN + 5);
-    strcat(v, "v");
+    strcat(v, "5label");
     char num[LEN + 5 - 1];
-    sprintf(num, "%d",V);
+    sprintf(num, "%d",L);
     strcat(v, num);
     return v;
 }
 
-//lab3 ing
+//lab3 finished
 int isParam(char* name){
     int i = 0;
     while(i < sizeOfNames){
@@ -1029,13 +1138,88 @@ int isParam(char* name){
 }
 //lab3 finished wzr
 void Cond(Operand operand_true, Operand operand_false, struct TreeNode* node){
+    struct TreeNode* fst = node;
+    node = node->subTree;
     if(!strcmp(node->name, "NOT")){
         Cond(operand_false, operand_true, node->broTree);
-    }else if(strcmp(node->name, "Exp")){
-        char* t1 = new_temp();
+    }else if(!strcmp(node->name, "Exp")){
+        if(!strcmp(node->broTree->name,"RELOP")){
+            char* t1 = new_temp();
+            Operand operand_t1 = createOperand();
+            operand_t1->kind = VAR;
+            operand_t1->u.value = t1;
+            
+            char* t2 = new_temp();
+            Operand operand_t2 = createOperand();
+            operand_t2->kind = VAR;
+            operand_t2->u.value = t2;
+
+            Exp(operand_t1, node);
+            Exp(operand_t2, node->broTree->broTree);
+
+            char* op = node->broTree->idType;
+            InterCode ifCode = createInterCode();
+            ifCode->kind = IF_GOTO;
+            ifCode->u.if_goto.t1 = operand_t1;
+            ifCode->u.if_goto.t2 = operand_t2;
+            ifCode->u.if_goto.op = op;
+            ifCode->u.if_goto.label = operand_true;
+
+            InterCode gotoCode = createInterCode();
+            gotoCode->kind = GOTO;
+            gotoCode->u.sinop.op = operand_false;
+        }else if(!strcmp(node->broTree->name,"AND")){
+
+            char *label1 = new_label();
+            Operand operand_label1 = createOperand();
+            operand_label1->kind = VAR;
+            operand_label1->u.value = label1;
+
+            Cond(operand_label1, operand_false, node);
+
+            InterCode label1Code = createInterCode();
+            label1Code->kind = LABEL_C;
+            label1Code->u.sinop.op = operand_label1;
+
+            Cond(operand_true, operand_false, node->broTree->broTree);
+        }else if(!strcmp(node->broTree->name,"OR")){
+            char *label1 = new_label();
+            Operand operand_label1 = createOperand();
+            operand_label1->kind = VAR;
+            operand_label1->u.value = label1;
+
+            Cond(operand_true, operand_label1, node);
+
+            InterCode label1Code = createInterCode();
+            label1Code->kind = LABEL_C;
+            label1Code->u.sinop.op = operand_label1;
+            Cond(operand_true, operand_false, node->broTree->broTree);
+        }
+    }else{
+        char *t1 = new_temp();
         Operand operand_t1 = createOperand();
         operand_t1->kind = VAR;
         operand_t1->u.value = t1;
+
+        Operand operand_t2 = createOperand();
+        operand_t2->kind = CONSTANT_INT;
+        operand_t2->u.intVar = 0;
+        printf(node->name);
+        Exp(operand_t1, fst);
+
+        InterCode ifCode = createInterCode();
+        ifCode->kind = IF_GOTO;
+        ifCode->u.if_goto.op = "!=";
+        ifCode->u.if_goto.t1 = operand_t1;
+        ifCode->u.if_goto.t2 = operand_t2;
+        ifCode->u.if_goto.label = operand_false;
+    }
+
+        
+
+
+
+        /*
 
         Operand operand_constant_1 = createOperand();
         operand_constant_1->kind = CONSTANT_INT;
@@ -1073,7 +1257,11 @@ void Cond(Operand operand_true, Operand operand_false, struct TreeNode* node){
         ifCode->u.if_goto.t1 = operand_t1;
         ifCode->u.if_goto.t2 = operand_t2;
         ifCode->u.if_goto.op = op;
-        ifCode->u.if_goto.label = operand_false;
+        ifCode->u.if_goto.label = operand_true;
+
+        InterCode gotoCode = createInterCode();
+        gotoCode->kind = GOTO;
+        gotoCode->u.sinop.op = operand_false;
 
     }else if(!strcmp(node->name, "AND")){
         char *label1 = new_label();
@@ -1098,4 +1286,5 @@ void Cond(Operand operand_true, Operand operand_false, struct TreeNode* node){
         label1Code->u.sinop.op = operand_label1;
         Cond(operand_true, operand_false, node->broTree);
     }
+    */
 }

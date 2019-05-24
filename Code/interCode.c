@@ -28,26 +28,26 @@ void insertCode(InterCode code){
 
 
 void printCode(){
-    f = fopen("interCode", "w");
+    f = fopen("interCode.ir", "w");
     InterCode p = begin->next;
     while(p->kind != CODE_BEGIN){
         switch(p->kind){
             case FUNCTION_C:{
-                printf("FUNCTION\n");
+                // printf("FUNCTION\n");
                 fputs("FUNCTION ", f);
                 printOp(p->u.sinop.op);
                 fputs(" :\n", f);
                 break;
             }
             case PARAM:{
-                printf("PARAM\n");
+                // printf("PARAM\n");
                 fputs("PARAM ", f);
                 printOp(p->u.sinop.op);
                 fputs("\n", f);
                 break;
             }
             case ASSIGN:{
-                printf("ASSIGN\n");
+                // printf("ASSIGN\n");
                 printOp(p->u.assign.left);
                 fputs(" := ", f);
                 printOp(p->u.assign.right);
@@ -55,7 +55,7 @@ void printCode(){
                 break;
             }
             case OPERATION:{
-                printf("OPERATION\n");
+                // printf("OPERATION\n");
                 printOp(p->u.binop.result);
                 fputs(" := ", f);
                 printOp(p->u.binop.op1);
@@ -100,10 +100,35 @@ void printCode(){
                 fputs(" ",f);
                 printOp(p->u.if_goto.t2);
                 fputs(" GOTO ",f);
-                fputs(p->u.if_goto.label,f);
+                printOp(p->u.if_goto.label);
                 fputs("\n", f);
                 break;
             }
+            case GOTO:{
+                fputs("GOTO ",f);
+                printOp(p->u.sinop.op);
+                fputs("\n", f);
+                break;
+            }
+            case LABEL_C:{
+                fputs("LABEL ",f);
+                printOp(p->u.sinop.op);
+                fputs(" :\n", f);
+                break;
+            }
+            case WRITE:{
+                fputs("WRITE ",f);
+                printOp(p->u.sinop.op);
+                fputs("\n", f);
+                break;
+            }
+            case READ:{
+                fputs("READ ",f);
+                printOp(p->u.sinop.op);
+                fputs("\n", f);
+                break;
+            }
+            default:  printf("%d\n",p->kind); assert(0);
         }
         p = p->next;
     }
