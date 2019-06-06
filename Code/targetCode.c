@@ -1,4 +1,4 @@
-#include "mips.h"
+#include "targetCode.h"
 
 struct Register_ regs[REG_NUM];
 FILE* fp; 
@@ -36,7 +36,7 @@ char* regsName[]={
     "$ra"
 };
 
-void printMips(char* fileName){
+void printAllTargetCode(char* fileName){
     fp = fopen(fileName,"w");
     if(fp == NULL){
         printf("Error: Can not open the file \"%s\"", fileName);
@@ -509,8 +509,6 @@ int getReg(Operand operand){
         name = operand->u.value;
     }else if(operand->kind == ADDR2VAR){
         name = operand->u.value;
-    }else if(operand->kind == VAR2ADDR){
-        name = operand->u.value;
     }
 
     Var_t var = findVar(name);
@@ -535,7 +533,6 @@ int getReg(Operand operand){
 }
 
 char* printReg(int index){
-    char *tempName = regs[index].name;
 	return regs[index].name;
 }
 

@@ -1,5 +1,5 @@
-#ifndef MIPS_H
-#define MIPS_H
+#ifndef TARGETCODE_H
+#define TARGETCODE_H
 
 #define REG_NUM 32
 #define STR_LENGTH 200
@@ -30,7 +30,7 @@ struct Register_{
 
 
 
-void printMips(char* fileName);
+void printAllTargetCode(char* fileName);
 void printTargetCode(InterCode interCode);
 
 void targetCodeLabel(InterCode interCode);

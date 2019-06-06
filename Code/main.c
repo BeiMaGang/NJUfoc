@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "type.h"
 #include "semantic.h"
-#include "mips.h"
+#include "targetCode.h"
 
 
 extern int  yyparse();
@@ -33,7 +33,7 @@ int main(int argc, char** argv){
         Program();
         // printCode(argv[argc - 1]);
         printCode("result_test.txt");
-        printMips("result.s");
+        printAllTargetCode("result.s");
     }
     return 0;
 }
