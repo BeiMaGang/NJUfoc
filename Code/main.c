@@ -14,7 +14,7 @@ int main(int argc, char** argv){
     // }
     // else{
         // for(int i = 0; i < argc - 1; i++){
-        for(int i=1; i<argc; i++){
+        for(int i = 1; i < argc - 1; i++){
             FILE *f = fopen(argv[i],"r");
             if(!f){
                 perror(argv[i]);
@@ -33,7 +33,7 @@ int main(int argc, char** argv){
         Program();
         // printCode(argv[argc - 1]);
         printCode("result_test.txt");
-        printAllTargetCode("result.s");
+        printAllTargetCode(argv[argc - 1]);
     }
     return 0;
 }
