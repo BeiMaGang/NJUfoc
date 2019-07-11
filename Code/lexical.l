@@ -6,6 +6,7 @@
 digit   [0-9]
 letter  [A-Za-z]
 id      (_|{letter})(_|{letter}|{digit})*
+num	fdsadjsaldjsak
 
 %%
 if |
