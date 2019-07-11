@@ -25,10 +25,16 @@ syntax: lexical syntax-c
 
 lexical: $(LFILE)
 	$(FLEX) -o $(LFC) $(LFILE)
-	$(CC) -o lex $(LFC)
 
 syntax-c: $(YFILE)
 	$(BISON) -o $(YFC) -d -v $(YFILE)
+
+lexical1: $(LFILE)
+	$(FLEX) -o $(LFC) $(LFILE)
+	$(CC) -o lex $(LFC)
+
+parser1: syntax-c lexical
+	$(CC) -o parser main.c syntax.tab.c -lfl -ly
 
 -include $(patsubst %.o, %.d, $(OBJS))
 
@@ -41,4 +47,3 @@ clean:
 	rm -f $(OBJS) $(OBJS:.o=.d)
 	rm -f $(LFC) $(YFC) $(YFC:.c=.h)
 	rm -f *~
-	rm lex
