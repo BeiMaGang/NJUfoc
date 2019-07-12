@@ -10,11 +10,68 @@ num: (箭头后面)语法单元的数量,num
 todo:此函数要做的事情就是生成一个树节点,兄弟节点不用动，子节点是传进来的第一个文法单元，第一个文法单元的兄弟节点一直往后.注意空指针
 */
 struct TreeNode* createNode(char* name, int num, ...){
-    return (struct TreeNode* )malloc(sizeof(struct TreeNode));
+    va_list valist;
+    struct TreeNode *father = (struct TreeNode*)malloc(sizeof(struct TreeNode)); //get father node
+    struct TreeNode *temp = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+
+    if(!father){
+        yyerror("out of space");
+        exit(0);
+    }
+
+    father->name = name;  //set father
+    va_start(valist,num);
+
+    if(num > 0){
+        temp = va_arg(valist, struct TreeNode*);
+        father->subTree = temp;
+        father->line = temp->line;
+
+        if(num>=2){
+            for(int i=0;i<num-1;i++){
+                temp->broTree = va_arg(valist,struct TreeNode*);
+                temp = temp->broTree;
+            }
+        }
+
+    }else {
+        int line_number = va_arg(valist, int);
+        father->line = line_number;
+        if((!strcmp(father->name,"ID")) || (!strcmp(father->name,"TYPE"))){
+            char *temp_name = (char*)malloc(sizeof(char*) * 40);
+            strcpy(temp_name,yytext);
+            father->idType = temp_name;
+        }else if(!strcmp(father->name,"INTEGER")){
+            father->intType = atoi(yytext);
+        }
+    }
+
+    return father;
+
+    // return (struct TreeNode* )malloc(sizeof(struct TreeNode));
 }
 
 //先序遍历
 /*二叉树的先序遍历*/
 void prePrint(struct TreeNode* parent, int level){
 
+    if(parent != NULL){
+        for(int i=0; i<level; i++)
+            print("  ");
+
+        if(parent->line != -1){
+            printf("%s" , parent->name);
+            if((!strcmp(parent->name,"ID")) || (!strcmp(parent->name,"TYPE"))){
+                printf(": %s", parent->idType);
+            }else if(!strcmp(father->name,"INTEGER")){
+                printf(": %d", parent->intType);
+            }else{
+                printf("(%d)", parent->line);
+            }
+    }
+    print("\n");
+    
+    prePrint(parent->subTree, level+1);
+    prePrint(parent->broTree, level);
+    }
 }
