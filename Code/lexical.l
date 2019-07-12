@@ -1,5 +1,6 @@
 %{
     #include "syntax.tab.h"
+    #include "syntaxTree.h"
     extern int yycolumn;
     extern YYSTYPE yylval;
 %}
@@ -9,11 +10,11 @@ digit   [0-9]
 letter  [A-Za-z]
 id      (_|{letter})(_|{letter}|{digit})*
 INT     [+-]?{digit}+
-FLOAT   [+1]?{digit}+(\.{digit}+)?(E[+-]?{digit}+)?
+FLOAT   [+-]?{digit}+(\.{digit}+)?(E[+-]?{digit}+)?
 ws      [ \t]
 
 %%
-{INT} {printf("num int %d\n", yylval);return INT;}
+{INT} {yylval.node = createNode("int",0);return INT;}
 {FLOAT} {printf("num float %s\n", yytext); return FLOAT;}
 ";" {printf("%s\n", yytext); return SEMI;}
 "," {return COMMA;}
