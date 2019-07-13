@@ -39,8 +39,13 @@ void initCode();
 void insertCode(InterCode code);
 void printOp(Operand operand);
 void printCode();
+void optimizeGoto();
+void deleteNode();
+void deleteLabel();
+void redirect_label(Operand operand, Operand operand_next);
 
 Operand createOperand();
 InterCode createInterCode();
+
 
 #endif
